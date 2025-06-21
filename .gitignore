@@ -50,12 +50,12 @@ load-env.bat
 /.nb-gradle/
 
 # Credentials & sensitive files
-get-referred-dev-firebase-adminsdk*.json
+/get-referred-dev-firebase*.json
 
 # Misc
 *.log
 
 # Not Relevant to Project
-Documents/
-/Logos
-/Graphics
+/Documents/
+/Logos/
+/Graphics/
