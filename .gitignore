@@ -55,5 +55,7 @@ get-referred-dev-firebase-adminsdk*.json
 # Misc
 *.log
 
-# Documents
+# Not Relevant to Project
 /Documents
+/Logos
+/Graphics
