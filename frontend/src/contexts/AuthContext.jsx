@@ -164,45 +164,69 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Sign in or sign up with email and password
-  const handleEmailAuth = async (email, password, isSignUp = false) => {
+  // Sign in or sign up with email and password (robust flow)
+  const handleEmailAuth = async (email, password) => {
+    setLoading(true);
+    setError(null);
+    let userCredential;
     try {
-      setLoading(true);
-      setError(null);
-
-      let userCredential;
-      if (isSignUp) {
-        userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await sendEmailVerification(userCredential.user);
+      // 1. Try to sign in
+      userCredential = await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        // 2. If user not found, create the user
+        try {
+          userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          await sendEmailVerification(userCredential.user);
+          navigate('/verify-email');
+          setLoading(false);
+          return;
+        } catch (signupError) {
+          if (signupError.code === 'auth/email-already-in-use') {
+            setError('Email already in use');
+          } else if (signupError.code === 'auth/weak-password') {
+            setError('Password should be at least 6 characters');
+          } else {
+            setError(signupError.message);
+          }
+          setLoading(false);
+          return;
+        }
+      } else if (error.code === 'auth/wrong-password') {
+        setError('Invalid email or password');
+        setLoading(false);
+        return;
       } else {
-        userCredential = await signInWithEmailAndPassword(auth, email, password);
+        setError(error.message);
+        setLoading(false);
+        return;
       }
-
-      const token = await userCredential.user.getIdToken();
+    }
+    // 3. If sign-in succeeded, check verification
+    try {
+      const user = userCredential.user;
+      if (!user.emailVerified) {
+        await sendEmailVerification(user);
+        navigate('/verify-email');
+        setLoading(false);
+        return;
+      }
+      // 4. Get token and send to backend
+      const token = await user.getIdToken();
       const response = await axios.post(`${API_URL}/auth/login`, { token });
-
       if (response.status === 403) {
         // Email not verified, redirect to verification page
         navigate('/verify-email');
+        setLoading(false);
         return;
       }
-
       if (response.status === 200) {
         setBackendUser(response.data);
-        setCurrentUser(userCredential.user);
+        setCurrentUser(user);
         navigate('/dashboard');
       }
-    } catch (error) {
-      console.error('Auth error:', error);
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        setError('Invalid email or password');
-      } else if (error.code === 'auth/email-already-in-use') {
-        setError('Email already in use');
-      } else if (error.code === 'auth/weak-password') {
-        setError('Password should be at least 6 characters');
-      } else {
-        setError(error.message);
-      }
+    } catch (finalError) {
+      setError(finalError.message);
     } finally {
       setLoading(false);
     }
