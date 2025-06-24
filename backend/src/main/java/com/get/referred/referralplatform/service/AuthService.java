@@ -73,13 +73,23 @@ public class AuthService {
                 newUser.setFirebaseUid(firebaseUid);
                 newUser.setEmail(email);
                 
-                // Set auth provider and verification status
-                // Check if the token is from Google auth
-                if (decodedToken.getIssuer() != null && 
-                    decodedToken.getIssuer().equals("https://securetoken.google.com/your-project-id")) {
+                // Set auth provider and verification status using Firebase token claim
+                Object firebaseClaim = decodedToken.getClaims().get("firebase");
+                String signInProvider = null;
+                if (firebaseClaim instanceof Map) {
+                    Object providerObj = ((Map<?, ?>) firebaseClaim).get("sign_in_provider");
+                    if (providerObj != null) {
+                        signInProvider = providerObj.toString();
+                    }
+                }
+                if ("google.com".equals(signInProvider)) {
                     newUser.setAuthProvider(User.AuthProvider.GOOGLE);
                     newUser.setEmailVerified(true); // Google emails are always verified
+                } else if ("password".equals(signInProvider)) {
+                    newUser.setAuthProvider(User.AuthProvider.EMAIL);
+                    newUser.setEmailVerified(isEmailVerified);
                 } else {
+                    // fallback, treat as EMAIL
                     newUser.setAuthProvider(User.AuthProvider.EMAIL);
                     newUser.setEmailVerified(isEmailVerified);
                 }
@@ -122,4 +132,4 @@ public class AuthService {
             throw e;
         }
     }
-} 
+}

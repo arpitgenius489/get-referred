@@ -164,7 +164,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Sign in or sign up with email and password (robust flow)
+  // Sign in or sign up with email and password (robust flow, backend expects /api/auth/email and { idToken })
   const handleEmailAuth = async (email, password) => {
     setLoading(true);
     setError(null);
@@ -173,21 +173,29 @@ export function AuthProvider({ children }) {
       // 1. Try to sign in
       userCredential = await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-      if (error.code === 'auth/user-not-found') {
-        // 2. If user not found, create the user
+      console.error('Sign in error:', error.code, error.message);
+      // If user not found or invalid-credential (Firebase sometimes returns this instead of user-not-found)
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
         try {
+          // 2. Try to create the user
           userCredential = await createUserWithEmailAndPassword(auth, email, password);
           await sendEmailVerification(userCredential.user);
+          // Send token to backend
+          const idToken = await userCredential.user.getIdToken();
+          await axios.post(`${API_URL}/auth/email`, { idToken });
           navigate('/verify-email');
           setLoading(false);
           return;
         } catch (signupError) {
+          console.error('Sign up error:', signupError.code, signupError.message);
           if (signupError.code === 'auth/email-already-in-use') {
             setError('Email already in use');
           } else if (signupError.code === 'auth/weak-password') {
             setError('Password should be at least 6 characters');
+          } else if (signupError.code === 'auth/invalid-email') {
+            setError('Invalid email format');
           } else {
-            setError(signupError.message);
+            setError(signupError.message || 'Sign up failed');
           }
           setLoading(false);
           return;
@@ -196,8 +204,16 @@ export function AuthProvider({ children }) {
         setError('Invalid email or password');
         setLoading(false);
         return;
+      } else if (error.code === 'auth/invalid-email') {
+        setError('Invalid email format');
+        setLoading(false);
+        return;
+      } else if (error.code === 'auth/too-many-requests') {
+        setError('Too many attempts. Please try again later.');
+        setLoading(false);
+        return;
       } else {
-        setError(error.message);
+        setError(error.message || 'Sign in failed');
         setLoading(false);
         return;
       }
@@ -207,13 +223,16 @@ export function AuthProvider({ children }) {
       const user = userCredential.user;
       if (!user.emailVerified) {
         await sendEmailVerification(user);
+        // Get the ID token and send to backend (in case user was created elsewhere but not verified)
+        const idToken = await user.getIdToken();
+        await axios.post(`${API_URL}/auth/email`, { idToken });
         navigate('/verify-email');
         setLoading(false);
         return;
       }
-      // 4. Get token and send to backend
-      const token = await user.getIdToken();
-      const response = await axios.post(`${API_URL}/auth/login`, { token });
+      // 4. Get token and send to backend (correct endpoint and payload)
+      const idToken = await user.getIdToken();
+      const response = await axios.post(`${API_URL}/auth/email`, { idToken });
       if (response.status === 403) {
         // Email not verified, redirect to verification page
         navigate('/verify-email');
@@ -226,119 +245,48 @@ export function AuthProvider({ children }) {
         navigate('/dashboard');
       }
     } catch (finalError) {
-      setError(finalError.message);
+      setError(finalError.message || 'Authentication failed.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Sign out
-  async function logout() {
-    try {
-      console.log('Starting logout process...');
-      await signOut(auth);
-      console.log('Firebase sign out successful');
-      setBackendUser(null);
-      console.log('User state cleared');
-      return true;
-    } catch (error) {
-      console.error('Logout error:', error);
-      throw new Error('Unable to sign out. Please try again.');
-    }
-  }
-
-  // Delete account
-  const deleteAccount = async () => {
-    try {
-      // 1. Get the current Firebase ID token
-      const idToken = await auth.currentUser?.getIdToken();
-      
-      if (!idToken) {
-        throw new Error('No authentication token available');
-      }
-
-      // 2. Make the deletion request
-      const response = await axios.delete(`${API_URL}/users/me`, {
-        headers: {
-          'Authorization': `Bearer ${idToken}`
-        }
-      });
-
-      // 3. Handle success response
-      if (response.status === 200 && response.data.status === 'success') {
-        // 4. Sign out from Firebase after successful deletion
-        await signOut(auth);
-        
-        // 5. Clear state
-        setBackendUser(null);
-        setCurrentUser(null);
-        setLoading(false);
-        localStorage.removeItem('user');
-        sessionStorage.removeItem('user');
-        
-        return { success: true };
-      }
-
-      throw new Error('Failed to delete account');
-    } catch (error) {
-      // Handle different error cases
-      if (error.response) {
-        switch (error.response.status) {
-          case 400:
-            throw new Error('Invalid token format: ' + error.response.data.message);
-          case 401:
-            throw new Error('Authentication failed: ' + error.response.data.message);
-          case 500:
-            throw new Error('Server error: ' + error.response.data.message);
-          default:
-            throw new Error(error.response.data.message || 'Failed to delete account');
-        }
-      }
-      throw error;
-    }
-  };
-
-  // Get current user's token
-  async function getToken() {
-    if (currentUser) {
-      return await currentUser.getIdToken();
-    }
-    return null;
-  }
-
-  // Get backend user
-  function getBackendUser() {
-    return backendUser;
-  }
-
+  // Auth state listener (to persist user state)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
+      setLoading(true);
       if (user) {
-        const token = await user.getIdToken();
-        await fetchBackendUser(token);
+        // User is signed in
+        setCurrentUser(user);
+        console.log('User signed in:', user.email);
+        try {
+          const token = await user.getIdToken();
+          await fetchBackendUser(token);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          setError('Failed to fetch user data. Please sign in again.');
+        }
       } else {
+        // User is signed out
+        setCurrentUser(null);
         setBackendUser(null);
+        console.log('User signed out');
       }
       setLoading(false);
     });
-    return unsubscribe;
+
+    return () => unsubscribe();
   }, []);
 
   const value = {
     currentUser,
     backendUser,
-    getBackendUser,
+    loading,
+    error,
     loginWithGoogle,
     handleEmailAuth,
-    logout,
-    deleteAccount,
-    getToken
+    signOut: () => signOut(auth)
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
