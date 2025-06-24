@@ -68,9 +68,47 @@ public class UserController {
             String idToken = authHeader.substring(7); // Remove "Bearer "
             FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
             String firebaseUid = decodedToken.getUid();
-            try { firebaseAuth.deleteUser(firebaseUid); } catch (Exception ignored) {}
-            try { userService.findByFirebaseUid(firebaseUid).ifPresent(user -> userService.deleteByFirebaseUid(firebaseUid)); } catch (Exception ignored) {}
-            return ResponseEntity.ok(new ApiResponse<>(true, "Account deletion completed", null));
+
+            boolean foundInFirebase = false;
+            boolean foundInDatabase = false;
+            boolean deletedFromFirebase = false;
+            boolean deletedFromDatabase = false;
+            StringBuilder errorMsg = new StringBuilder();
+
+            // Try to delete from Firebase
+            try {
+                firebaseAuth.deleteUser(firebaseUid);
+                deletedFromFirebase = true;
+            } catch (Exception e) {
+                // Check if not found
+                String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+                if (msg.contains("not found") || msg.contains("no user record")) {
+                    // Not found in Firebase, that's OK
+                } else {
+                    errorMsg.append("Failed to delete from Firebase: ").append(e.getMessage()).append(". ");
+                }
+            }
+
+            // Try to delete from database
+            try {
+                Optional<User> userOpt = userService.findByFirebaseUid(firebaseUid);
+                if (userOpt.isPresent()) {
+                    foundInDatabase = true;
+                    userService.deleteByFirebaseUid(firebaseUid);
+                    deletedFromDatabase = true;
+                }
+            } catch (Exception e) {
+                errorMsg.append("Failed to delete from database: ").append(e.getMessage()).append(". ");
+            }
+
+            // Only two cases are success:
+            // 1. Not found in both Firebase and DB
+            // 2. Successfully deleted from both (or either, if only present in one)
+            if ((!deletedFromFirebase && !deletedFromDatabase && !foundInDatabase) || (deletedFromFirebase || deletedFromDatabase)) {
+                return ResponseEntity.ok(new ApiResponse<>(true, "Account deletion completed", null));
+            } else {
+                return ResponseEntity.internalServerError().body(new ApiResponse<>(false, errorMsg.toString(), null));
+            }
         } catch (IllegalArgumentException e) {
             logger.error("Invalid token format: {}", e.getMessage());
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
