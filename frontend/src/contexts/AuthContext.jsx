@@ -251,6 +251,42 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Delete account function
+  const deleteAccount = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        setError('No user is currently signed in.');
+        setLoading(false);
+        return false;
+      }
+      const idToken = await user.getIdToken();
+      // Call backend to delete user
+      const response = await axios.delete(`${API_URL}/users/me`, {
+        headers: { Authorization: `Bearer ${idToken}` }
+      });
+      if (response.status === 200 && response.data.status === 'success') {
+        // Only clear state and redirect if backend confirms deletion
+        setCurrentUser(null);
+        setBackendUser(null);
+        setLoading(false);
+        navigate('/'); // Go to landing page
+        return true;
+      } else {
+        setError('Failed to delete account. Please try again.');
+        setLoading(false);
+        return false;
+      }
+    } catch (error) {
+      console.error('Delete account error:', error);
+      setError(error.response?.data?.message || error.message || 'Failed to delete account.');
+      setLoading(false);
+      return false;
+    }
+  };
+
   // Auth state listener (to persist user state)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -285,7 +321,8 @@ export function AuthProvider({ children }) {
     error,
     loginWithGoogle,
     handleEmailAuth,
-    signOut: () => signOut(auth)
+    signOut: () => signOut(auth),
+    deleteAccount
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
