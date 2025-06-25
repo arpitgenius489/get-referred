@@ -169,18 +169,6 @@ export default function Login() {
             {loading ? 'Signing in...' : 'Continue with Email'}
           </button>
         </form>
-
-        <div className="mt-6">
-          <div className="relative">
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">
-                <Link to="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
-                  Forgot your password?
-                </Link>
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )
