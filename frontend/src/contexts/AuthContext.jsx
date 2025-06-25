@@ -185,7 +185,7 @@ export function AuthProvider({ children }) {
           await axios.post(`${API_URL}/auth/email`, { idToken });
           navigate('/verify-email');
           setLoading(false);
-          return;
+          return { requiresVerification: true };
         } catch (signupError) {
           console.error('Sign up error:', signupError.code, signupError.message);
           if (signupError.code === 'auth/email-already-in-use') {
@@ -198,24 +198,24 @@ export function AuthProvider({ children }) {
             setError(signupError.message || 'Sign up failed');
           }
           setLoading(false);
-          return;
+          return { success: false };
         }
       } else if (error.code === 'auth/wrong-password') {
         setError('Invalid email or password');
         setLoading(false);
-        return;
+        return { success: false };
       } else if (error.code === 'auth/invalid-email') {
         setError('Invalid email format');
         setLoading(false);
-        return;
+        return { success: false };
       } else if (error.code === 'auth/too-many-requests') {
         setError('Too many attempts. Please try again later.');
         setLoading(false);
-        return;
+        return { success: false };
       } else {
         setError(error.message || 'Sign in failed');
         setLoading(false);
-        return;
+        return { success: false };
       }
     }
     // 3. If sign-in succeeded, check verification
@@ -228,7 +228,7 @@ export function AuthProvider({ children }) {
         await axios.post(`${API_URL}/auth/email`, { idToken });
         navigate('/verify-email');
         setLoading(false);
-        return;
+        return { requiresVerification: true };
       }
       // 4. Get token and send to backend (correct endpoint and payload)
       const idToken = await user.getIdToken();
@@ -237,17 +237,21 @@ export function AuthProvider({ children }) {
         // Email not verified, redirect to verification page
         navigate('/verify-email');
         setLoading(false);
-        return;
+        return { requiresVerification: true };
       }
       if (response.status === 200) {
         setBackendUser(response.data);
         setCurrentUser(user);
         navigate('/dashboard');
+        setLoading(false);
+        return { success: true };
       }
+      setLoading(false);
+      return { success: false };
     } catch (finalError) {
       setError(finalError.message || 'Authentication failed.');
-    } finally {
       setLoading(false);
+      return { success: false };
     }
   };
 
@@ -273,8 +277,8 @@ export function AuthProvider({ children }) {
         setBackendUser(null);
         setLoading(false);
         localStorage.clear(); // Clear all local storage
-        sessionStorage.clear(); // Clear all session storage
-        navigate('/');
+        sessionStorage.clear();
+        window.location.href = '/'; // Clear all session storage
         return true;
       } else {
         setError('Failed to delete account. Please try again.');
