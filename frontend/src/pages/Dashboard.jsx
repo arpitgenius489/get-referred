@@ -32,15 +32,13 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('profile');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
+  const [signOutLoading, setSignOutLoading] = useState(false);
+  const [signOutError, setSignOutError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate('/');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+  const handleLogout = () => {
+    setShowSignOutModal(true);
   };
 
   const copyToken = () => {
@@ -139,6 +137,48 @@ export default function Dashboard() {
             {!sidebarCollapsed && 'Sign Out'}
           </button>
         </div>
+        {/* Sign Out Confirmation Modal */}
+        {showSignOutModal && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+            <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md border border-gray-200">
+              <h3 className="text-lg font-bold mb-2 text-gray-900">Sign Out?</h3>
+              <p className="mb-4 text-gray-700 text-base">Are you sure you want to sign out?</p>
+              {signOutError && (
+                <div className="mb-4 bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative text-base" role="alert">
+                  <span className="block sm:inline">{signOutError}</span>
+                </div>
+              )}
+              <div className="flex justify-end gap-3">
+                <button
+                  className="btn btn-secondary px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-base"
+                  onClick={() => setShowSignOutModal(false)}
+                  disabled={signOutLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-danger px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 text-base font-semibold"
+                  onClick={async () => {
+                    setSignOutLoading(true);
+                    setSignOutError('');
+                    try {
+                      await signOut();
+                      setShowSignOutModal(false);
+                      setSignOutLoading(false);
+                      navigate('/');
+                    } catch (error) {
+                      setSignOutError(error.message || 'Failed to sign out.');
+                      setSignOutLoading(false);
+                    }
+                  }}
+                  disabled={signOutLoading}
+                >
+                  {signOutLoading ? 'Signing Out...' : 'Sign Out'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </aside>
       {/* Main Content */}
       <main className="flex-1 p-8">

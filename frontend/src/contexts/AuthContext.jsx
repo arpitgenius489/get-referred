@@ -268,11 +268,13 @@ export function AuthProvider({ children }) {
         headers: { Authorization: `Bearer ${idToken}` }
       });
       if (response.status === 200 && response.data.status === 'success') {
-        // Only clear state and redirect if backend confirms deletion
+        // Only after backend confirms, clear state and redirect
         setCurrentUser(null);
         setBackendUser(null);
         setLoading(false);
-        navigate('/'); // Go to landing page
+        localStorage.clear(); // Clear all local storage
+        sessionStorage.clear(); // Clear all session storage
+        navigate('/');
         return true;
       } else {
         setError('Failed to delete account. Please try again.');

@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { API_URL } from '../config/api';
 import LoadingPlaceholder from './LoadingPlaceholder';
+import { useNavigate } from 'react-router-dom';
 
 export default function MyProfile() {
   const { getToken, backendUser, getBackendUser, deleteAccount, loading: authLoading } = useAuth();
@@ -16,6 +17,7 @@ export default function MyProfile() {
   const [message, setMessage] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchProfile() {
@@ -157,18 +159,18 @@ export default function MyProfile() {
       </div>
       {/* Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
-          <div className="bg-white rounded-lg shadow p-6 w-full max-w-xs">
-            <h3 className="text-base font-semibold mb-2 text-gray-900">Delete Account?</h3>
-            <p className="mb-4 text-gray-700 text-sm">This action cannot be undone. All your data will be permanently deleted.</p>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg border border-gray-200">
+            <h3 className="text-xl font-bold mb-3 text-gray-900">Delete Account?</h3>
+            <p className="mb-6 text-gray-700 text-base">This action cannot be undone. All your data will be permanently deleted.</p>
             {error && (
-              <div className="mb-4 bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative text-sm" role="alert">
+              <div className="mb-4 bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative text-base" role="alert">
                 <span className="block sm:inline">{error}</span>
               </div>
             )}
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-3">
               <button
-                className="btn btn-secondary px-3 py-1 rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-sm"
+                className="btn btn-secondary px-5 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-base"
                 onClick={() => {
                   setShowDeleteModal(false);
                   setError('');
@@ -178,18 +180,19 @@ export default function MyProfile() {
                 Cancel
               </button>
               <button
-                className="btn btn-danger px-3 py-1 rounded-md text-white bg-red-600 hover:bg-red-700 text-sm"
+                className="btn btn-danger px-5 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 text-base font-semibold"
                 onClick={async () => {
                   setDeleteLoading(true);
                   setError('');
                   try {
                     const result = await deleteAccount();
-                    if (result.success) {
-                      window.location.href = '/';
+                    if (result === true) {
+                      setShowDeleteModal(false);
+                      setDeleteLoading(false);
+                      navigate('/');
                     }
                   } catch (err) {
                     setError(err.message || 'Failed to delete account');
-                  } finally {
                     setDeleteLoading(false);
                   }
                 }}
