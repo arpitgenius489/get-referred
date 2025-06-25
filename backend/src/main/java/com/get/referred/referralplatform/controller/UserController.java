@@ -69,42 +69,40 @@ public class UserController {
             FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
             String firebaseUid = decodedToken.getUid();
 
-            boolean foundInFirebase = false;
-            boolean foundInDatabase = false;
-            boolean deletedFromFirebase = false;
-            boolean deletedFromDatabase = false;
+            boolean firebaseSuccess = false;
+            boolean dbSuccess = false;
             StringBuilder errorMsg = new StringBuilder();
 
-            // Try to delete from Firebase
+            // Firebase deletion logic
             try {
                 firebaseAuth.deleteUser(firebaseUid);
-                deletedFromFirebase = true;
+                firebaseSuccess = true;
             } catch (Exception e) {
-                // Check if not found
                 String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
                 if (msg.contains("not found") || msg.contains("no user record")) {
-                    // Not found in Firebase, that's OK
+                    // Not found in Firebase, treat as success
+                    firebaseSuccess = true;
                 } else {
                     errorMsg.append("Failed to delete from Firebase: ").append(e.getMessage()).append(". ");
                 }
             }
 
-            // Try to delete from database
+            // Database deletion logic
             try {
                 Optional<User> userOpt = userService.findByFirebaseUid(firebaseUid);
                 if (userOpt.isPresent()) {
-                    foundInDatabase = true;
                     userService.deleteByFirebaseUid(firebaseUid);
-                    deletedFromDatabase = true;
+                    dbSuccess = true;
+                } else {
+                    // Not found in DB, treat as success
+                    dbSuccess = true;
                 }
             } catch (Exception e) {
                 errorMsg.append("Failed to delete from database: ").append(e.getMessage()).append(". ");
             }
 
-            // Only two cases are success:
-            // 1. Not found in both Firebase and DB
-            // 2. Successfully deleted from both (or either, if only present in one)
-            if ((!deletedFromFirebase && !deletedFromDatabase && !foundInDatabase) || (deletedFromFirebase || deletedFromDatabase)) {
+            // Only if both are successful, return success
+            if (firebaseSuccess && dbSuccess) {
                 return ResponseEntity.ok(new ApiResponse<>(true, "Account deletion completed", null));
             } else {
                 return ResponseEntity.internalServerError().body(new ApiResponse<>(false, errorMsg.toString(), null));
