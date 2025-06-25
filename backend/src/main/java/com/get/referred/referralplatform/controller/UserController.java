@@ -69,25 +69,10 @@ public class UserController {
             FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
             String firebaseUid = decodedToken.getUid();
 
-            boolean firebaseSuccess = false;
             boolean dbSuccess = false;
             StringBuilder errorMsg = new StringBuilder();
 
-            // Firebase deletion logic
-            try {
-                firebaseAuth.deleteUser(firebaseUid);
-                firebaseSuccess = true;
-            } catch (Exception e) {
-                String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
-                if (msg.contains("not found") || msg.contains("no user record")) {
-                    // Not found in Firebase, treat as success
-                    firebaseSuccess = true;
-                } else {
-                    errorMsg.append("Failed to delete from Firebase: ").append(e.getMessage()).append(". ");
-                }
-            }
-
-            // Database deletion logic
+            // Database deletion logic only
             try {
                 Optional<User> userOpt = userService.findByFirebaseUid(firebaseUid);
                 if (userOpt.isPresent()) {
@@ -101,8 +86,8 @@ public class UserController {
                 errorMsg.append("Failed to delete from database: ").append(e.getMessage()).append(". ");
             }
 
-            // Only if both are successful, return success
-            if (firebaseSuccess && dbSuccess) {
+            // Only if DB deletion is successful, return success
+            if (dbSuccess) {
                 return ResponseEntity.ok(new ApiResponse<>(true, "Account deletion completed", null));
             } else {
                 return ResponseEntity.internalServerError().body(new ApiResponse<>(false, errorMsg.toString(), null));
