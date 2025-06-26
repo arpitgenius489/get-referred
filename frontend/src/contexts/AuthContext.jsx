@@ -251,10 +251,7 @@ export function AuthProvider({ children }) {
       });
       // Only proceed if backend returns { success: true }
       if (
-        response.status === 200 &&
-        response.data &&
-        response.data.success === true &&
-        response.data.message === 'User deleted successfully'
+        response.data.success === true
       ) {
         try {
           await user.delete();
