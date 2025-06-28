@@ -1,0 +1,10 @@
+# Ignore build output
+/target
+# Ignore local environment files
+.env
+# Ignore Firebase credentials (should be mounted, not copied)
+firebase-service.json
+# Ignore any OS or IDE files
+*.iml
+.idea/
+.DS_Store
