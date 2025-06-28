@@ -1,5 +1,8 @@
 package com.get.referred.referralplatform.config;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -46,9 +49,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000"); // Frontend URL
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
+        // Read allowed origins from environment variable
+        String origins = System.getenv().getOrDefault("ALLOWED_ORIGINS", "");
+        List<String> allowedOrigins = origins.isEmpty() ? List.of() : Arrays.asList(origins.split(","));
+        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
