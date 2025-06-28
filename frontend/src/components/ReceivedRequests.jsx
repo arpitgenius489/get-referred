@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { API_URL } from '../config/api';
 import LoadingPlaceholder from './LoadingPlaceholder';
 
 export default function ReceivedRequests() {
@@ -17,11 +18,11 @@ export default function ReceivedRequests() {
     setMessage('');
     try {
       const token = await getToken();
-      let url = 'http://localhost:8080/api/referral-requests/received-requests';
+      let url = `${API_URL}/api/referral-requests/received-requests`;
       if (filter === 'pending') {
-        url = 'http://localhost:8080/api/referral-requests/pending';
+        url = `${API_URL}/api/referral-requests/pending`;
       } else if (filter === 'hired') {
-        url = 'http://localhost:8080/api/referral-requests/hired';
+        url = `${API_URL}/api/referral-requests/hired`;
       }
 
       const response = await axios.get(url, {
@@ -49,7 +50,7 @@ export default function ReceivedRequests() {
     setMessage('');
     try {
       const token = await getToken();
-      await axios.put(`http://localhost:8080/api/referral-requests/${requestId}/status`, 
+      await axios.put(`${API_URL}/api/referral-requests/${requestId}/status`, 
         {
           status,
         },
@@ -192,4 +193,4 @@ export default function ReceivedRequests() {
       </div>
     </div>
   );
-} 
+}

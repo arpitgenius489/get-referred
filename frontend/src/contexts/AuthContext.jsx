@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
   // Helper to fetch backend user info
   const fetchBackendUser = async (token) => {
     try {
-      const response = await axios.get(`${API_URL}/users/me`, {
+      const response = await axios.get(`${API_URL}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setBackendUser(response.data);
@@ -89,7 +89,7 @@ export function AuthProvider({ children }) {
       }
       
       try {
-        const response = await axios.post(`${API_URL}/auth/google`, { idToken: token });
+        const response = await axios.post(`${API_URL}/api/auth/google`, { idToken: token });
         
         const userData = await fetchBackendUser(token);
         
@@ -159,7 +159,7 @@ export function AuthProvider({ children }) {
           await sendEmailVerification(userCredential.user);
           // Send token to backend
           const idToken = await userCredential.user.getIdToken();
-          await axios.post(`${API_URL}/auth/email`, { idToken });
+          await axios.post(`${API_URL}/api/auth/email`, { idToken });
           navigate('/verify-email');
           setLoading(false);
           return { requiresVerification: true };
@@ -201,14 +201,14 @@ export function AuthProvider({ children }) {
         await sendEmailVerification(user);
         // Get the ID token and send to backend (in case user was created elsewhere but not verified)
         const idToken = await user.getIdToken();
-        await axios.post(`${API_URL}/auth/email`, { idToken });
+        await axios.post(`${API_URL}/api/auth/email`, { idToken });
         navigate('/verify-email');
         setLoading(false);
         return { requiresVerification: true };
       }
       // 4. Get token and send to backend (correct endpoint and payload)
       const idToken = await user.getIdToken();
-      const response = await axios.post(`${API_URL}/auth/email`, { idToken });
+      const response = await axios.post(`${API_URL}/api/auth/email`, { idToken });
       if (response.status === 403) {
         // Email not verified, redirect to verification page
         navigate('/verify-email');
@@ -246,7 +246,7 @@ export function AuthProvider({ children }) {
       }
       const idToken = await user.getIdToken();
       // Call backend to delete user
-      const response = await axios.delete(`${API_URL}/users/me`, {
+      const response = await axios.delete(`${API_URL}/api/users/me`, {
         headers: { Authorization: `Bearer ${idToken}` }
       });
       // Only proceed if backend returns { success: true }

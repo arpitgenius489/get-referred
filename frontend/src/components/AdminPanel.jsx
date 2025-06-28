@@ -18,7 +18,7 @@ export default function AdminPanel() {
       const token = await getToken();
       // Assuming /api/users/employees gives a list of all users relevant to admin view
       // If a /api/users endpoint for all users exists, it would be preferred.
-      const response = await axios.get(`${API_URL}/users/employees`, {
+      const response = await axios.get(`${API_URL}/api/users/employees`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -199,4 +199,4 @@ export default function AdminPanel() {
       </div>
     </div>
   );
-} 
+}

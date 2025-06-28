@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { API_URL } from '../config/api';
 import LoadingPlaceholder from './LoadingPlaceholder';
 
 export default function MyRequests() {
@@ -17,7 +18,7 @@ export default function MyRequests() {
     setMessage('');
     try {
       const token = await getToken();
-      const response = await axios.get('http://localhost:8080/api/referral-requests/my-requests', {
+      const response = await axios.get(`${API_URL}/api/referral-requests/my-requests`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -116,7 +117,7 @@ export default function MyRequests() {
 
     try {
       const token = await getToken();
-      await axios.put(`http://localhost:8080/api/referral-requests/${requestId}/rating`, 
+      await axios.put(`${API_URL}/api/referral-requests/${requestId}/rating`, 
         {
           rating: parseInt(rating, 10),
         },
@@ -200,4 +201,4 @@ export default function MyRequests() {
       </div>
     </div>
   );
-} 
+}

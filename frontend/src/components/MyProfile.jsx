@@ -57,7 +57,7 @@ export default function MyProfile() {
 
     try {
       const token = await getToken();
-      const updateUrl = `${API_URL}/users/${userId}`;
+      const updateUrl = `${API_URL}/api/users/${userId}`;
       await axios.put(updateUrl, 
         {
           name,
