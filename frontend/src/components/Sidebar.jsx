@@ -60,9 +60,9 @@ const Sidebar = ({
   const userEmail = backendUser?.email || '';
 
   return (
-    <aside className={`${sidebarCollapsed ? 'w-20' : 'w-72'} bg-white border-r border-gray-200 flex flex-col h-screen transition-all duration-200 fixed left-0 top-0 z-30`}>
+    <aside className={`${sidebarCollapsed ? 'w-20' : 'w-72'} bg-white border-r border-gray-200 flex flex-col h-screen transition-all duration-700 ease-in-out fixed left-0 top-0 z-30`} style={{transitionProperty: 'width, background, box-shadow, opacity'}}>
       {/* Top: Logo, app name, and arrow (in line) */}
-      <div className="flex items-center px-6 py-6 border-b border-gray-100 relative flex-shrink-0">
+      <div className="flex items-center px-6 py-6 border-b border-gray-100 relative flex-shrink-0 transition-all duration-700 ease-in-out" style={{opacity: sidebarCollapsed ? 0.7 : 1, transition: 'opacity 0.7s cubic-bezier(0.4,0,0.2,1)'}}>
         {/* Logo (clickable) */}
         {!sidebarCollapsed && (
           <span
@@ -100,7 +100,7 @@ const Sidebar = ({
       </div>
       {/* Profile info: always reserve space, collapse visually only */}
       <div
-        className={`border-b border-gray-100 flex-shrink-0 transition-all duration-300 px-6`}
+        className={`border-b border-gray-100 flex-shrink-0 transition-all duration-700 ease-in-out px-6`}
         style={{
           height: PROFILE_SECTION_HEIGHT,
           minHeight: PROFILE_SECTION_HEIGHT,
@@ -110,6 +110,7 @@ const Sidebar = ({
           paddingBottom: sidebarCollapsed ? 0 : '2rem',
           opacity: sidebarCollapsed ? 0 : 1,
           pointerEvents: sidebarCollapsed ? 'none' : 'auto',
+          transition: 'all 0.7s cubic-bezier(0.4,0,0.2,1)',
         }}
       >
         <div className="flex flex-col items-center w-full">
