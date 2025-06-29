@@ -97,4 +97,16 @@ public class ReferralRequestService {
     public List<ReferralRequestDTO> toDTOList(List<ReferralRequest> requests) {
         return requests.stream().map(ReferralRequestDTO::fromEntity).collect(Collectors.toList());
     }
-} 
+
+    public List<ReferralRequest> getReferralRequestsByJobSeekerFirebaseUid(String firebaseUid) {
+        User user = userService.findByFirebaseUid(firebaseUid)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        return referralRequestRepository.findByJobSeekerId(user.getId());
+    }
+
+    public List<ReferralRequest> getReferralRequestsByEmployeeFirebaseUid(String firebaseUid) {
+        User user = userService.findByFirebaseUid(firebaseUid)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        return referralRequestRepository.findByEmployeeId(user.getId());
+    }
+}

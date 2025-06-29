@@ -15,6 +15,7 @@ import com.get.referred.referralplatform.model.User;
 import com.get.referred.referralplatform.model.User.UserRole;
 import com.get.referred.referralplatform.repository.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import com.get.referred.referralplatform.dto.UserDTO;
 
 @Service
@@ -178,5 +179,18 @@ public class UserService {
         return userRepository.findByRole(role).stream()
             .map(UserDTO::fromEntity)
             .collect(Collectors.toList());
+    }
+
+    public String extractFirebaseUidFromAuthHeader(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Token must be provided as 'Bearer {token}'");
+        }
+        String idToken = authHeader.substring(7);
+        try {
+            FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
+            return decodedToken.getUid();
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid or expired token");
+        }
     }
 }

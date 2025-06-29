@@ -9,24 +9,27 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.get.referred.referralplatform.model.ReferralRequest;
-import com.get.referred.referralplatform.model.ReferralRequest.Status;
 import com.get.referred.referralplatform.service.ReferralRequestService;
 import com.get.referred.referralplatform.dto.ReferralRequestDTO;
 import com.get.referred.referralplatform.dto.ApiResponse;
+import com.get.referred.referralplatform.service.UserService;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/referral-requests")
+@RequestMapping("/api/referrals")
 public class ReferralRequestController {
     private final ReferralRequestService referralRequestService;
+    private final UserService userService;
 
-    public ReferralRequestController(ReferralRequestService referralRequestService) {
+    public ReferralRequestController(ReferralRequestService referralRequestService, UserService userService) {
         this.referralRequestService = referralRequestService;
+        this.userService = userService;
     }
 
     @PostMapping
@@ -44,19 +47,19 @@ public class ReferralRequestController {
             .orElse(ResponseEntity.status(404).body(new ApiResponse<>(false, "Referral request not found", null)));
     }
 
-    @GetMapping("/my-requests")
+    @GetMapping("/me")
     @PreAuthorize("hasRole('JOB_SEEKER')")
-    public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getMyReferralRequests() {
-        Long userId = 1L; // TODO: Replace with actual user ID from security context
-        List<ReferralRequestDTO> dtos = referralRequestService.toDTOList(referralRequestService.getReferralRequestsByJobSeeker(userId));
+    public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getMyReferralRequests(@RequestHeader("Authorization") String authHeader) {
+        String firebaseUid = userService.extractFirebaseUidFromAuthHeader(authHeader);
+        List<ReferralRequestDTO> dtos = referralRequestService.toDTOList(referralRequestService.getReferralRequestsByJobSeekerFirebaseUid(firebaseUid));
         return ResponseEntity.ok(new ApiResponse<>(true, "My referral requests fetched", dtos));
     }
 
-    @GetMapping("/received-requests")
+    @GetMapping("/received")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getReceivedReferralRequests() {
-        Long userId = 1L; // TODO: Replace with actual user ID from security context
-        List<ReferralRequestDTO> dtos = referralRequestService.toDTOList(referralRequestService.getReferralRequestsByEmployee(userId));
+    public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getReceivedReferralRequests(@RequestHeader("Authorization") String authHeader) {
+        String firebaseUid = userService.extractFirebaseUidFromAuthHeader(authHeader);
+        List<ReferralRequestDTO> dtos = referralRequestService.toDTOList(referralRequestService.getReferralRequestsByEmployeeFirebaseUid(firebaseUid));
         return ResponseEntity.ok(new ApiResponse<>(true, "Received referral requests fetched", dtos));
     }
 
