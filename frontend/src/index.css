@@ -17,7 +17,11 @@
   
   .btn-primary {
     @apply bg-primary-600 text-white hover:bg-primary-700 
-           shadow-sm hover:shadow focus:ring-2 focus:ring-primary-500/20;
+           shadow-sm hover:shadow focus:ring-0 focus:border-primary-600 focus:outline-none;
+  }
+  
+  .btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700 shadow-sm hover:shadow focus:ring-0 focus:border-red-600 focus:outline-none;
   }
   
   .btn-secondary {
@@ -26,9 +30,15 @@
   }
   
   .input {
-    @apply w-full px-4 py-2 border border-gray-200 rounded-md 
-           focus:outline-none focus:ring-2 focus:ring-primary-500/20 
-           focus:border-primary-500 transition-all duration-200;
+    @apply w-full px-4 py-2 border border-gray-200 rounded-md transition-all duration-200;
+    border-width: 1px;
+    border-color: #e5e7eb;
+  }
+  .input:focus {
+    outline: none;
+    border-color: #60a5fa; /* Tailwind blue-400 */
+    box-shadow: none;
+    border-width: 1.5px;
   }
   
   .card {
