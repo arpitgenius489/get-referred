@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.get.referred.referralplatform.model.ReferralRequest;
 import com.get.referred.referralplatform.model.ReferralRequest.Status;
+import com.get.referred.referralplatform.model.User;
 import com.get.referred.referralplatform.repository.ReferralRequestRepository;
 import com.get.referred.referralplatform.dto.ReferralRequestDTO;
 
@@ -25,8 +26,16 @@ public class ReferralRequestService {
 
     @Transactional
     public ReferralRequest createReferralRequest(ReferralRequest request) {
+        // Check if a pending referral already exists for this job seeker and company
+        List<ReferralRequest> existing = referralRequestRepository.findByJobSeekerId(request.getJobSeeker().getId())
+            .stream().filter(r -> r.getCompanyName().equalsIgnoreCase(request.getCompanyName()) && r.getStatus() == Status.PENDING)
+            .collect(Collectors.toList());
+        if (!existing.isEmpty()) {
+            throw new RuntimeException("A pending referral request for this company already exists.");
+        }
         request.setStatus(Status.PENDING);
         request.setCreatedAt(LocalDateTime.now());
+        request.setEmployee(null); // Not claimed yet
         return referralRequestRepository.save(request);
     }
 
@@ -108,5 +117,45 @@ public class ReferralRequestService {
         User user = userService.findByFirebaseUid(firebaseUid)
             .orElseThrow(() -> new RuntimeException("User not found"));
         return referralRequestRepository.findByEmployeeId(user.getId());
+    }
+
+    public List<ReferralRequestDTO> filterReferralRequestsByStatusAndUser(String firebaseUid, String statusStr) {
+        User user = userService.findByFirebaseUid(firebaseUid)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        ReferralRequest.Status status;
+        try {
+            status = ReferralRequest.Status.valueOf(statusStr.toUpperCase());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid status: " + statusStr);
+        }
+        List<ReferralRequest> asJobSeeker = referralRequestRepository.findByJobSeekerId(user.getId())
+            .stream().filter(r -> r.getStatus() == status).collect(Collectors.toList());
+        List<ReferralRequest> asEmployee = referralRequestRepository.findByEmployeeId(user.getId())
+            .stream().filter(r -> r.getStatus() == status).collect(Collectors.toList());
+        asEmployee.addAll(asJobSeeker);
+        return toDTOList(asEmployee);
+    }
+
+    @Transactional
+    public ReferralRequest acceptReferralRequest(Long id, User employee) {
+        ReferralRequest request = referralRequestRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Referral request not found"));
+        if (request.getEmployee() != null || request.getStatus() != Status.PENDING) {
+            throw new RuntimeException("Referral request already accepted or not pending");
+        }
+        request.setEmployee(employee);
+        request.setStatus(Status.ACCEPTED);
+        request.setUpdatedAt(LocalDateTime.now());
+        referralRequestRepository.save(request);
+        // Email notification will be handled after this
+        return request;
+    }
+
+    public List<ReferralRequest> getUnclaimedReferralRequestsForEmployeeCompany(User employee) {
+        String companyName = employee.getCompanyName();
+        if (companyName == null || !Boolean.TRUE.equals(employee.getIsEmployee())) {
+            return List.of();
+        }
+        return referralRequestRepository.findByCompanyNameIgnoreCaseAndStatusAndEmployeeIsNull(companyName, Status.PENDING);
     }
 }

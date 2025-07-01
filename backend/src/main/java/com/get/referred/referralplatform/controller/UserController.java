@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.get.referred.referralplatform.dto.UserDTO;
 import com.get.referred.referralplatform.dto.ApiResponse;
+import com.get.referred.referralplatform.dto.UserProfileUpdateDTO;
 
 @RestController
 @RequestMapping("/api/users")
@@ -142,5 +143,17 @@ public class UserController {
     public ResponseEntity<ApiResponse<List<UserDTO>>> getEmployees() {
         List<UserDTO> employees = userService.getUserDTOsByRole(User.UserRole.USER);
         return ResponseEntity.ok(new ApiResponse<>(true, "Employees fetched successfully", employees));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<?> updateCurrentUser(@RequestHeader("Authorization") String authHeader, @RequestBody UserProfileUpdateDTO updateDTO) {
+        try {
+            String firebaseUid = userService.extractFirebaseUidFromAuthHeader(authHeader);
+            User updatedUser = userService.updateUserProfileByFirebaseUid(firebaseUid, updateDTO);
+            return ResponseEntity.ok(new ApiResponse<>(true, "User profile updated successfully", UserDTO.fromEntity(updatedUser)));
+        } catch (RuntimeException e) {
+            logger.error("Error updating user profile: {}", e.getMessage());
+            return ResponseEntity.status(400).body(new ApiResponse<>(false, e.getMessage(), null));
+        }
     }
 }

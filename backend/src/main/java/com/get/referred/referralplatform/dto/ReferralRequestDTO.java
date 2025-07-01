@@ -12,6 +12,12 @@ public class ReferralRequestDTO {
     private LocalDateTime updatedAt;
     private Long jobSeekerId;
     private Long employeeId;
+    private String jobSeekerName;
+    private String jobSeekerEmail;
+    private String jobSeekerLinkedin;
+    private String employeeName;
+    private String employeeEmail;
+    private String employeeLinkedin;
 
     public ReferralRequestDTO() {}
 
@@ -99,9 +105,57 @@ public class ReferralRequestDTO {
         this.employeeId = employeeId;
     }
 
+    public String getJobSeekerName() {
+        return jobSeekerName;
+    }
+
+    public void setJobSeekerName(String jobSeekerName) {
+        this.jobSeekerName = jobSeekerName;
+    }
+
+    public String getJobSeekerEmail() {
+        return jobSeekerEmail;
+    }
+
+    public void setJobSeekerEmail(String jobSeekerEmail) {
+        this.jobSeekerEmail = jobSeekerEmail;
+    }
+
+    public String getJobSeekerLinkedin() {
+        return jobSeekerLinkedin;
+    }
+
+    public void setJobSeekerLinkedin(String jobSeekerLinkedin) {
+        this.jobSeekerLinkedin = jobSeekerLinkedin;
+    }
+
+    public String getEmployeeName() {
+        return employeeName;
+    }
+
+    public void setEmployeeName(String employeeName) {
+        this.employeeName = employeeName;
+    }
+
+    public String getEmployeeEmail() {
+        return employeeEmail;
+    }
+
+    public void setEmployeeEmail(String employeeEmail) {
+        this.employeeEmail = employeeEmail;
+    }
+
+    public String getEmployeeLinkedin() {
+        return employeeLinkedin;
+    }
+
+    public void setEmployeeLinkedin(String employeeLinkedin) {
+        this.employeeLinkedin = employeeLinkedin;
+    }
+
     public static ReferralRequestDTO fromEntity(com.get.referred.referralplatform.model.ReferralRequest request) {
         if (request == null) return null;
-        return new ReferralRequestDTO(
+        ReferralRequestDTO dto = new ReferralRequestDTO(
             request.getId(),
             request.getJobId(),
             request.getCompanyName(),
@@ -112,5 +166,16 @@ public class ReferralRequestDTO {
             request.getJobSeeker() != null ? request.getJobSeeker().getId() : null,
             request.getEmployee() != null ? request.getEmployee().getId() : null
         );
+        if (request.getJobSeeker() != null) {
+            dto.setJobSeekerName(request.getJobSeeker().getName());
+            dto.setJobSeekerEmail(request.getJobSeeker().getEmail());
+            dto.setJobSeekerLinkedin(request.getJobSeeker().getLinkedinLink());
+        }
+        if (request.getEmployee() != null) {
+            dto.setEmployeeName(request.getEmployee().getName());
+            dto.setEmployeeEmail(request.getEmployee().getEmail());
+            dto.setEmployeeLinkedin(request.getEmployee().getLinkedinLink());
+        }
+        return dto;
     }
-} 
+}

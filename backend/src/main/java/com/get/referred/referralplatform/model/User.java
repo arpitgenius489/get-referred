@@ -51,6 +51,24 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+
+    @Column(name = "github_link")
+    private String githubLink;
+
+    @Column(name = "linkedin_link")
+    private String linkedinLink;
+
+    @Column(name = "resume_link")
+    private String resumeLink;
+
+    @Column(name = "is_employee")
+    private Boolean isEmployee;
+
+    @Column(name = "company_name")
+    private String companyName;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -97,4 +115,22 @@ public class User {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getProfilePictureUrl() { return profilePictureUrl; }
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
+
+    public String getGithubLink() { return githubLink; }
+    public void setGithubLink(String githubLink) { this.githubLink = githubLink; }
+
+    public String getLinkedinLink() { return linkedinLink; }
+    public void setLinkedinLink(String linkedinLink) { this.linkedinLink = linkedinLink; }
+
+    public String getResumeLink() { return resumeLink; }
+    public void setResumeLink(String resumeLink) { this.resumeLink = resumeLink; }
+
+    public Boolean getIsEmployee() { return isEmployee; }
+    public void setIsEmployee(Boolean isEmployee) { this.isEmployee = isEmployee; }
+
+    public String getCompanyName() { return companyName; }
+    public void setCompanyName(String companyName) { this.companyName = companyName; }
 }

@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.get.referred.referralplatform.model.ReferralRequest;
+import com.get.referred.referralplatform.model.User;
 import com.get.referred.referralplatform.service.ReferralRequestService;
 import com.get.referred.referralplatform.dto.ReferralRequestDTO;
 import com.get.referred.referralplatform.dto.ApiResponse;
@@ -59,7 +61,11 @@ public class ReferralRequestController {
     @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getReceivedReferralRequests(@RequestHeader("Authorization") String authHeader) {
         String firebaseUid = userService.extractFirebaseUidFromAuthHeader(authHeader);
-        List<ReferralRequestDTO> dtos = referralRequestService.toDTOList(referralRequestService.getReferralRequestsByEmployeeFirebaseUid(firebaseUid));
+        User employee = userService.findByFirebaseUid(firebaseUid).orElse(null);
+        if (employee == null) {
+            return ResponseEntity.status(404).body(new ApiResponse<>(false, "Employee not found", null));
+        }
+        List<ReferralRequestDTO> dtos = referralRequestService.toDTOList(referralRequestService.getUnclaimedReferralRequestsForEmployeeCompany(employee));
         return ResponseEntity.ok(new ApiResponse<>(true, "Received referral requests fetched", dtos));
     }
 
@@ -97,8 +103,19 @@ public class ReferralRequestController {
     }
 
     @GetMapping("/hired")
-    public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getHiredReferralRequests() {
-        List<ReferralRequestDTO> dtos = referralRequestService.toDTOList(referralRequestService.getHiredReferralRequests());
+    @PreAuthorize("hasRole('EMPLOYEE') or hasRole('JOB_SEEKER')")
+    public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getHiredReferralRequests(@RequestHeader("Authorization") String authHeader) {
+        String firebaseUid = userService.extractFirebaseUidFromAuthHeader(authHeader);
+        List<ReferralRequestDTO> dtos = referralRequestService.filterReferralRequestsByStatusAndUser(firebaseUid, "HIRED");
         return ResponseEntity.ok(new ApiResponse<>(true, "Hired referral requests fetched", dtos));
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> filterReferralRequests(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam("status") String status) {
+        String firebaseUid = userService.extractFirebaseUidFromAuthHeader(authHeader);
+        List<ReferralRequestDTO> dtos = referralRequestService.filterReferralRequestsByStatusAndUser(firebaseUid, status);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Filtered referral requests fetched", dtos));
     }
 }

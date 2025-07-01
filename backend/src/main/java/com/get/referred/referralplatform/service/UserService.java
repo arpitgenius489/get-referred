@@ -17,6 +17,7 @@ import com.get.referred.referralplatform.repository.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.get.referred.referralplatform.dto.UserDTO;
+import com.get.referred.referralplatform.dto.UserProfileUpdateDTO;
 
 @Service
 public class UserService {
@@ -104,6 +105,22 @@ public class UserService {
                 return userRepository.save(existingUser);
             })
             .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
+    @Transactional
+    public User updateUserProfileByFirebaseUid(String firebaseUid, UserProfileUpdateDTO dto) {
+        return userRepository.findByFirebaseUid(firebaseUid)
+            .map(user -> {
+                if (dto.getName() != null) user.setName(dto.getName());
+                if (dto.getProfilePictureUrl() != null) user.setProfilePictureUrl(dto.getProfilePictureUrl());
+                if (dto.getGithubLink() != null) user.setGithubLink(dto.getGithubLink());
+                if (dto.getLinkedinLink() != null) user.setLinkedinLink(dto.getLinkedinLink());
+                if (dto.getResumeLink() != null) user.setResumeLink(dto.getResumeLink());
+                if (dto.getIsEmployee() != null) user.setIsEmployee(dto.getIsEmployee());
+                if (dto.getCompanyName() != null) user.setCompanyName(dto.getCompanyName());
+                return userRepository.save(user);
+            })
+            .orElseThrow(() -> new RuntimeException("User not found with firebaseUid: " + firebaseUid));
     }
 
     public void deleteByFirebaseUid(String firebaseUid) {
