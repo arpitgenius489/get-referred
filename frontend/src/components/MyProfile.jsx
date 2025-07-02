@@ -27,7 +27,7 @@ function Toast({ message, type = 'success', onClose }) {
 }
 
 export default function MyProfile() {
-  const { getToken, backendUser, getBackendUser, deleteAccount, loading: authLoading } = useAuth();
+  const { currentUser, backendUser, getBackendUser, deleteAccount, loading: authLoading } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [profilePictureUrl, setProfilePictureUrl] = useState('');
@@ -79,7 +79,7 @@ export default function MyProfile() {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = await getToken();
+      const token = await currentUser.getIdToken();
       const updateUrl = `${API_URL}/api/users/me`;
       const data = {
         name,
