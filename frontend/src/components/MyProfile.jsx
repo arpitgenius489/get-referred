@@ -1,29 +1,36 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { API_URL } from '../config/api';
 import LoadingPlaceholder from './LoadingPlaceholder';
 import { useNavigate } from 'react-router-dom';
 
-const DEFAULT_AVATAR =
-  'https://ui-avatars.com/api/?name=User&background=E5E7EB&color=374151&size=128&rounded=true';
+function Toast({ message, type = 'success', onClose }) {
+  // type: 'success' | 'error'
+  return (
+    <div className={`fixed top-6 right-6 z-50 px-4 py-3 rounded shadow-lg text-base flex items-center gap-2 transition-all duration-300 ${type === 'error' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
+      role="alert">
+      <span>{message}</span>
+      <button onClick={onClose} className="ml-2 text-lg font-bold leading-none focus:outline-none">×</button>
+    </div>
+  );
+}
 
 export default function MyProfile() {
   const { getToken, backendUser, getBackendUser, deleteAccount, loading: authLoading } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [linkedinUrl, setLinkedinUrl] = useState('');
+  const [profilePictureUrl, setProfilePictureUrl] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
-  const [profilePicture, setProfilePicture] = useState('');
-  const [pendingProfilePicture, setPendingProfilePicture] = useState('');
+  const [linkedinUrl, setLinkedinUrl] = useState('');
+  const [resumeLink, setResumeLink] = useState('');
+  const [isEmployee, setIsEmployee] = useState(false);
+  const [companyName, setCompanyName] = useState('');
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,65 +41,58 @@ export default function MyProfile() {
         return;
       }
       try {
-        setError('');
-        setMessage('');
         setName(backendUserObj.name || '');
         setEmail(backendUserObj.email || '');
-        setLinkedinUrl(backendUserObj.linkedinUrl || '');
+        setProfilePictureUrl(backendUserObj.profilePicture || '');
         setGithubUrl(backendUserObj.githubUrl || '');
-        setProfilePicture(backendUserObj.profilePicture || '');
-        setPendingProfilePicture('');
+        setLinkedinUrl(backendUserObj.linkedinUrl || '');
+        setResumeLink(backendUserObj.resumeLink || '');
+        setIsEmployee(!!backendUserObj.isEmployee);
+        setCompanyName(backendUserObj.companyName || '');
         setUserId(backendUserObj.id);
       } catch (err) {
-        setError('Failed to fetch profile.');
+        showToast('Failed to fetch profile.', 'error');
       } finally {
         setLoading(false);
       }
     }
     fetchProfile();
+    // eslint-disable-next-line
   }, [getBackendUser, backendUser]);
+
+  function showToast(message, type = 'success') {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type }), 2500);
+  }
 
   async function handleUpdateProfile(e) {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setMessage('');
     if (!userId) {
-      setError('User ID not found from backend. Cannot update profile.');
+      showToast('User ID not found from backend. Cannot update profile.', 'error');
       setLoading(false);
       return;
     }
     try {
       const token = await getToken();
       const updateUrl = `${API_URL}/api/users/${userId}`;
-      let data;
-      let headers = { Authorization: `Bearer ${token}` };
-      if (pendingProfilePicture) {
-        data = new FormData();
-        data.append('profilePicture', pendingProfilePicture);
-        data.append('name', name);
-        data.append('linkedinUrl', linkedinUrl);
-        data.append('githubUrl', githubUrl);
-        headers['Content-Type'] = 'multipart/form-data';
-      } else {
-        data = { name, linkedinUrl, githubUrl };
-      }
-      const response = await axios.put(updateUrl, data, { headers });
-      setMessage('Profile updated successfully!');
-      setProfilePicture(response.data.profilePicture || profilePicture);
-      setPendingProfilePicture('');
+      const data = {
+        name,
+        profilePicture: profilePictureUrl,
+        githubUrl,
+        linkedinUrl,
+        resumeLink,
+        isEmployee,
+        companyName: isEmployee ? companyName : '',
+      };
+      const headers = { Authorization: `Bearer ${token}` };
+      await axios.put(updateUrl, data, { headers });
+      showToast('Profile updated successfully!', 'success');
     } catch (err) {
-      setError('Failed to update profile: ' + (err.response?.data?.message || err.message));
+      showToast('Failed to update profile: ' + (err.response?.data?.message || err.message), 'error');
     } finally {
       setLoading(false);
     }
-  }
-
-  function handleAvatarChange(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    setPendingProfilePicture(file);
-    setMessage('Avatar will be updated after clicking Update Profile.');
   }
 
   if (authLoading || loading) {
@@ -105,43 +105,10 @@ export default function MyProfile() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4 text-gray-900">My Profile</h2>
-      <div className="flex flex-col items-center mb-6">
-        <div className="relative">
-          <img
-            src={pendingProfilePicture ? URL.createObjectURL(pendingProfilePicture) : (profilePicture || DEFAULT_AVATAR)}
-            alt="Avatar"
-            className="w-24 h-24 rounded-full object-cover border-2 border-primary-600 shadow"
-          />
-          <button
-            type="button"
-            className="absolute bottom-0 right-0 bg-primary-600 text-white rounded-full p-2 shadow hover:bg-primary-700 focus:outline-none"
-            onClick={() => fileInputRef.current && fileInputRef.current.click()}
-            title="Upload new avatar"
-          >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-          </button>
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={handleAvatarChange}
-            disabled={uploading}
-          />
-        </div>
-        <div className="text-xs text-gray-500 mt-2">JPG, PNG, or GIF. Max 2MB.</div>
-      </div>
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-          <span className="block sm:inline">{error}</span>
-        </div>
+      {toast.show && (
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast({ show: false, message: '', type: toast.type })} />
       )}
-      {message && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-          <span className="block sm:inline">{message}</span>
-        </div>
-      )}
+      <h2 className="text-2xl font-semibold mb-6 text-gray-900">My Profile</h2>
       <form className="space-y-4" onSubmit={handleUpdateProfile}>
         <div>
           <label htmlFor="email" className="form-label">Email</label>
@@ -151,6 +118,7 @@ export default function MyProfile() {
             className="input bg-gray-100 cursor-not-allowed"
             value={email}
             disabled
+            placeholder="Your email"
           />
         </div>
         <div>
@@ -163,19 +131,17 @@ export default function MyProfile() {
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter your name"
           />
-          {!name && <div className="text-xs text-red-500 mt-1">Name not set. Please update.</div>}
         </div>
         <div>
-          <label htmlFor="linkedin" className="form-label">LinkedIn URL</label>
+          <label htmlFor="profilePictureUrl" className="form-label">Profile Picture URL</label>
           <input
             type="url"
-            id="linkedin"
+            id="profilePictureUrl"
             className="input"
-            placeholder="https://linkedin.com/in/yourprofile"
-            value={linkedinUrl}
-            onChange={(e) => setLinkedinUrl(e.target.value)}
+            value={profilePictureUrl}
+            onChange={(e) => setProfilePictureUrl(e.target.value)}
+            placeholder="https://your-image-url.com/profile.jpg"
           />
-          {!linkedinUrl && <div className="text-xs text-red-500 mt-1">LinkedIn URL not set. Please update.</div>}
         </div>
         <div>
           <label htmlFor="github" className="form-label">GitHub URL</label>
@@ -187,9 +153,53 @@ export default function MyProfile() {
             value={githubUrl}
             onChange={(e) => setGithubUrl(e.target.value)}
           />
-          {!githubUrl && <div className="text-xs text-red-500 mt-1">GitHub URL not set. Please update.</div>}
         </div>
-        <div className="flex justify-between gap-3 mt-6">
+        <div>
+          <label htmlFor="linkedin" className="form-label">LinkedIn URL</label>
+          <input
+            type="url"
+            id="linkedin"
+            className="input"
+            placeholder="https://linkedin.com/in/yourprofile"
+            value={linkedinUrl}
+            onChange={(e) => setLinkedinUrl(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="resumeLink" className="form-label">Resume Link</label>
+          <input
+            type="url"
+            id="resumeLink"
+            className="input"
+            placeholder="https://your-resume-link.com"
+            value={resumeLink}
+            onChange={(e) => setResumeLink(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="isEmployee"
+            checked={isEmployee}
+            onChange={(e) => setIsEmployee(e.target.checked)}
+          />
+          <label htmlFor="isEmployee" className="form-label mb-0">I am an employee</label>
+        </div>
+        {isEmployee && (
+          <div>
+            <label htmlFor="companyName" className="form-label">Company Name</label>
+            <input
+              type="text"
+              id="companyName"
+              className="input"
+              placeholder="Enter your company name"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+            />
+          </div>
+        )}
+        <div className="h-4" />
+        <div className="mt-8 flex justify-between gap-3">
           <button type="submit" className="btn btn-primary min-w-[140px]">
             {loading ? 'Updating...' : 'Update Profile'}
           </button>
@@ -208,17 +218,14 @@ export default function MyProfile() {
           <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg border border-gray-200">
             <h3 className="text-xl font-bold mb-3 text-gray-900">Delete Account?</h3>
             <p className="mb-6 text-gray-700 text-base">This action cannot be undone. All your data will be permanently deleted.</p>
-            {error && (
-              <div className="mb-4 bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative text-base" role="alert">
-                <span className="block sm:inline">{error}</span>
-              </div>
+            {toast.show && toast.type === 'error' && (
+              <Toast message={toast.message} type={toast.type} onClose={() => setToast({ show: false, message: '', type: toast.type })} />
             )}
             <div className="flex justify-end gap-3">
               <button
                 className="btn btn-secondary px-5 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-base"
                 onClick={() => {
                   setShowDeleteModal(false);
-                  setError('');
                 }}
                 disabled={deleteLoading}
               >
@@ -228,7 +235,6 @@ export default function MyProfile() {
                 className="btn btn-danger px-5 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 text-base font-semibold"
                 onClick={async () => {
                   setDeleteLoading(true);
-                  setError('');
                   try {
                     const result = await deleteAccount();
                     if (result === true) {
@@ -237,7 +243,7 @@ export default function MyProfile() {
                       navigate('/');
                     }
                   } catch (err) {
-                    setError(err.message || 'Failed to delete account');
+                    showToast(err.message || 'Failed to delete account', 'error');
                     setDeleteLoading(false);
                   }
                 }}
