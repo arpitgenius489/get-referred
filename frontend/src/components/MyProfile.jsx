@@ -26,7 +26,7 @@ function Toast({ message, type = 'success', onClose }) {
 }
 
 export default function MyProfile() {
-  const { currentUser, backendUser, getBackendUser, deleteAccount, loading: authLoading } = useAuth();
+  const { currentUser, backendUser, getBackendUser, deleteAccount, loading: authLoading, refreshBackendUser } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [profilePictureUrl, setProfilePictureUrl] = useState('');
@@ -36,38 +36,25 @@ export default function MyProfile() {
   const [isEmployee, setIsEmployee] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [userId, setUserId] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Only true during update
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Only initialize state from backendUser once
   useEffect(() => {
-    async function fetchProfile() {
-      const backendUserObj = getBackendUser && getBackendUser();
-      if (!backendUserObj) {
-        setLoading(false);
-        return;
-      }
-      try {
-        setName(backendUserObj.name || '');
-        setEmail(backendUserObj.email || '');
-        setProfilePictureUrl(backendUserObj.profilePicture || '');
-        setGithubUrl(backendUserObj.githubUrl || '');
-        setLinkedinUrl(backendUserObj.linkedinUrl || '');
-        setResumeLink(backendUserObj.resumeLink || '');
-        setIsEmployee(!!backendUserObj.isEmployee);
-        setCompanyName(backendUserObj.companyName || '');
-        setUserId(backendUserObj.id);
-      } catch (err) {
-        showToast('Failed to fetch profile.', 'error');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchProfile();
-    // eslint-disable-next-line
-  }, [getBackendUser, backendUser]);
+    if (!backendUser) return;
+    setName(backendUser.name || '');
+    setEmail(backendUser.email || '');
+    setProfilePictureUrl(backendUser.profilePicture || '');
+    setGithubUrl(backendUser.githubUrl || '');
+    setLinkedinUrl(backendUser.linkedinUrl || '');
+    setResumeLink(backendUser.resumeLink || '');
+    setIsEmployee(!!backendUser.isEmployee);
+    setCompanyName(backendUser.companyName || '');
+    setUserId(backendUser.id);
+  }, [backendUser]);
 
   function showToast(message, type = 'success') {
     setToast({ show: true, message, type });
@@ -91,6 +78,7 @@ export default function MyProfile() {
       };
       const headers = { Authorization: `Bearer ${token}` };
       await axios.put(updateUrl, data, { headers });
+      await refreshBackendUser(); // Refresh context and sidebar
       showToast('Profile updated successfully!', 'success');
     } catch (err) {
       showToast('Failed to update profile: ' + (err.response?.data?.message || err.message), 'error');
@@ -99,7 +87,7 @@ export default function MyProfile() {
     }
   }
 
-  if (authLoading || loading) {
+  if (authLoading) {
     return <LoadingPlaceholder type="profile" count={1} />;
   }
 
@@ -116,101 +104,134 @@ export default function MyProfile() {
       <form className="space-y-4" onSubmit={handleUpdateProfile}>
         <div>
           <label htmlFor="email" className="form-label">Email</label>
-          <input
-            type="email"
-            id="email"
-            className="input bg-gray-100 cursor-not-allowed"
-            value={email}
-            disabled
-            placeholder="Your email"
-          />
+          {loading ? (
+            <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
+          ) : (
+            <input
+              type="email"
+              id="email"
+              className="input bg-gray-100 cursor-not-allowed"
+              value={email || ''}
+              disabled
+              placeholder="Your email"
+            />
+          )}
         </div>
         <div>
           <label htmlFor="name" className="form-label">Name</label>
-          <input
-            type="text"
-            id="name"
-            className="input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter your name"
-          />
+          {loading ? (
+            <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
+          ) : (
+            <input
+              type="text"
+              id="name"
+              className="input"
+              value={name || ''}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={name ? '' : 'Enter your name'}
+            />
+          )}
         </div>
         <div>
           <label htmlFor="profilePictureUrl" className="form-label">Profile Picture URL</label>
-          <input
-            type="url"
-            id="profilePictureUrl"
-            className="input"
-            value={profilePictureUrl}
-            onChange={(e) => setProfilePictureUrl(e.target.value)}
-            placeholder="https://your-image-url.com/profile.jpg"
-          />
+          {loading ? (
+            <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
+          ) : (
+            <input
+              type="url"
+              id="profilePictureUrl"
+              className="input"
+              value={profilePictureUrl || ''}
+              onChange={(e) => setProfilePictureUrl(e.target.value)}
+              placeholder={profilePictureUrl ? '' : 'https://your-image-url.com/profile.jpg'}
+            />
+          )}
         </div>
         <div>
           <label htmlFor="github" className="form-label">GitHub URL</label>
-          <input
-            type="url"
-            id="github"
-            className="input"
-            placeholder="https://github.com/yourprofile"
-            value={githubUrl}
-            onChange={(e) => setGithubUrl(e.target.value)}
-          />
+          {loading ? (
+            <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
+          ) : (
+            <input
+              type="url"
+              id="github"
+              className="input"
+              value={githubUrl || ''}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              placeholder={githubUrl ? '' : 'https://github.com/yourprofile'}
+            />
+          )}
         </div>
         <div>
           <label htmlFor="linkedin" className="form-label">LinkedIn URL</label>
-          <input
-            type="url"
-            id="linkedin"
-            className="input"
-            placeholder="https://linkedin.com/in/yourprofile"
-            value={linkedinUrl}
-            onChange={(e) => setLinkedinUrl(e.target.value)}
-          />
+          {loading ? (
+            <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
+          ) : (
+            <input
+              type="url"
+              id="linkedin"
+              className="input"
+              value={linkedinUrl || ''}
+              onChange={(e) => setLinkedinUrl(e.target.value)}
+              placeholder={linkedinUrl ? '' : 'https://linkedin.com/in/yourprofile'}
+            />
+          )}
         </div>
         <div>
           <label htmlFor="resumeLink" className="form-label">Resume Link</label>
-          <input
-            type="url"
-            id="resumeLink"
-            className="input"
-            placeholder="https://your-resume-link.com"
-            value={resumeLink}
-            onChange={(e) => setResumeLink(e.target.value)}
-          />
+          {loading ? (
+            <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
+          ) : (
+            <input
+              type="url"
+              id="resumeLink"
+              className="input"
+              value={resumeLink || ''}
+              onChange={(e) => setResumeLink(e.target.value)}
+              placeholder={resumeLink ? '' : 'https://your-resume-link.com'}
+            />
+          )}
         </div>
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="isEmployee"
-            checked={isEmployee}
-            onChange={(e) => setIsEmployee(e.target.checked)}
-          />
+          {loading ? (
+            <div className="h-5 w-5 bg-gray-200 rounded animate-pulse" />
+          ) : (
+            <input
+              type="checkbox"
+              id="isEmployee"
+              checked={isEmployee}
+              onChange={(e) => setIsEmployee(e.target.checked)}
+            />
+          )}
           <label htmlFor="isEmployee" className="form-label mb-0">I am an employee</label>
         </div>
         {isEmployee && (
           <div>
             <label htmlFor="companyName" className="form-label">Company Name</label>
-            <input
-              type="text"
-              id="companyName"
-              className="input"
-              placeholder="Enter your company name"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-            />
+            {loading ? (
+              <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
+            ) : (
+              <input
+                type="text"
+                id="companyName"
+                className="input"
+                value={companyName || ''}
+                onChange={(e) => setCompanyName(e.target.value)}
+                placeholder={companyName ? '' : 'Enter your company name'}
+              />
+            )}
           </div>
         )}
         <div className="h-4" />
         <div className="mt-8 flex justify-between gap-3">
-          <button type="submit" className="btn btn-primary min-w-[140px]">
+          <button type="submit" className="btn btn-primary min-w-[140px]" disabled={loading}>
             {loading ? 'Updating...' : 'Update Profile'}
           </button>
           <button
             type="button"
             className="btn btn-danger min-w-[140px]"
             onClick={() => setShowDeleteModal(true)}
+            disabled={loading}
           >
             Delete Account
           </button>

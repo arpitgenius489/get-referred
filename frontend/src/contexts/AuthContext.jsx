@@ -71,6 +71,13 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Refresh backend user info and update context
+  const refreshBackendUser = async () => {
+    if (!auth.currentUser) return;
+    const token = await auth.currentUser.getIdToken();
+    await fetchBackendUser(token);
+  };
+
   // Sign in with Google
   const loginWithGoogle = async () => {
     try {
@@ -316,7 +323,8 @@ export function AuthProvider({ children }) {
     loginWithGoogle,
     handleEmailAuth,
     signOut: () => signOut(auth),
-    deleteAccount
+    deleteAccount,
+    refreshBackendUser // <-- export refreshBackendUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
