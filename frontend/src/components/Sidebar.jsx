@@ -55,9 +55,11 @@ const Sidebar = ({
   signOut,
   navigate,
 }) => {
-  const avatarLetter = backendUser ? (backendUser.name?.[0]?.toUpperCase() || backendUser.email?.[0]?.toLowerCase() || 'U') : 'U';
-  const userName = backendUser?.name || 'User';
-  const userEmail = backendUser?.email || '';
+  // Always use backendUser from getBackendUser() if available
+  const userObj = backendUser && backendUser.data ? backendUser.data : backendUser;
+  const avatarLetter = userObj?.name?.[0]?.toUpperCase() || userObj?.email?.[0]?.toLowerCase() || 'U';
+  const userName = userObj?.name || 'User';
+  const userEmail = userObj?.email || '';
 
   return (
     <aside className={`${sidebarCollapsed ? 'w-20' : 'w-72'} bg-white border-r border-gray-200 flex flex-col h-screen transition-all duration-700 ease-in-out fixed left-0 top-0 z-30`} style={{transitionProperty: 'width, background, box-shadow, opacity'}}>

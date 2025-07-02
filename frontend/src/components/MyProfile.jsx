@@ -6,22 +6,16 @@ import LoadingPlaceholder from './LoadingPlaceholder';
 import { useNavigate } from 'react-router-dom';
 
 function Toast({ message, type = 'success', onClose }) {
-  // Modern, animated toast
+  // Modern, simple, consistent alert (rounded, solid, no shadow, subtle transition)
   return (
     <div
-      className={`fixed top-8 right-8 z-50 min-w-[260px] max-w-xs px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 transition-all duration-300 animate-fade-in-up
-        ${type === 'error' ? 'bg-gradient-to-r from-red-500 to-red-400 text-white' : 'bg-gradient-to-r from-green-500 to-green-400 text-white'}`}
+      className={`fixed top-6 right-6 z-50 px-4 py-3 rounded-lg border text-base flex items-center gap-2 transition-all duration-200
+        ${type === 'error' ? 'bg-red-600 border-red-700 text-white' : 'bg-green-600 border-green-700 text-white'}`}
       role="alert"
-      style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)' }}
+      style={{ minWidth: 220, maxWidth: 320 }}
     >
-      <span className="flex-1 font-medium text-base">{message}</span>
-      <button
-        onClick={onClose}
-        className="ml-2 text-lg font-bold leading-none rounded-full hover:bg-white/20 p-1 transition-colors duration-200 focus:outline-none"
-        aria-label="Close notification"
-      >
-        ×
-      </button>
+      <span className="block flex-1 font-medium">{message}</span>
+      <button onClick={onClose} className="ml-2 text-lg font-bold leading-none rounded-full hover:bg-white/20 p-1 focus:outline-none">×</button>
     </div>
   );
 }
