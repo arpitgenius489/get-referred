@@ -132,14 +132,14 @@ const Sidebar = ({
             </span>
           )}
           <div className="font-semibold text-gray-900 text-lg text-center w-full truncate">{userName}</div>
-          <div className="text-gray-500 text-sm text-center w-full truncate mt-1">{userEmail}</div>
+          <div className="text-gray-500 text-sm text-center w-full truncate mt-1 mb-3">{userEmail}</div>
         </div>
       </div>
       {/* Section links: always at same vertical position */}
       <div className="flex-1 min-h-0 flex flex-col">
         <div className="flex-1 overflow-y-auto">
-          {/* Add extra margin-top to ensure robust spacing from profile area */}
-          <nav className="mt-16">
+          {/* Use a smaller margin-top for section links for a tighter layout */}
+          <nav className="mt-3">
             <ul className="space-y-1">
               {SIDEBAR_LINKS.map(link => (
                 <li key={link.id}>
