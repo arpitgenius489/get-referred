@@ -55,7 +55,7 @@ const Sidebar = ({
   signOut,
   navigate,
 }) => {
-  const avatarLetter = backendUser?.name?.[0]?.toUpperCase() || backendUser?.email?.[0]?.toLowerCase() || 'U';
+  const avatarLetter = backendUser ? (backendUser.name?.[0]?.toUpperCase() || backendUser.email?.[0]?.toLowerCase() || 'U') : 'U';
   const userName = backendUser?.name || 'User';
   const userEmail = backendUser?.email || '';
 
@@ -116,13 +116,13 @@ const Sidebar = ({
         <div className="flex flex-col items-center w-full">
           <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-primary-600 mb-2">{avatarLetter}</div>
           <div className="font-semibold text-gray-900 text-lg text-center w-full truncate">{userName}</div>
-          <div className="text-gray-500 text-sm text-center w-full truncate">{userEmail}</div>
+          <div className="text-gray-500 text-sm text-center w-full truncate mt-1">{userEmail}</div>
         </div>
       </div>
       {/* Section links: always at same vertical position */}
       <div className="flex-1 min-h-0 flex flex-col">
         <div className="flex-1 overflow-y-auto">
-          <nav className="mt-6">
+          <nav className="mt-10">
             <ul className="space-y-1">
               {SIDEBAR_LINKS.map(link => (
                 <li key={link.id}>

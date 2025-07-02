@@ -299,9 +299,18 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
+  // Add this to AuthContext value so components can always get the latest backendUser (with email)
+  const getBackendUser = () => {
+    if (!backendUser) return null;
+    // If backendUser.data exists (API returns {success, message, data}), use .data
+    if (backendUser.data) return backendUser.data;
+    return backendUser;
+  };
+
   const value = {
     currentUser,
     backendUser,
+    getBackendUser,
     loading,
     error,
     loginWithGoogle,

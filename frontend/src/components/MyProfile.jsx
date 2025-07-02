@@ -78,19 +78,14 @@ export default function MyProfile() {
   async function handleUpdateProfile(e) {
     e.preventDefault();
     setLoading(true);
-    if (!userId) {
-      showToast('User ID not found from backend. Cannot update profile.', 'error');
-      setLoading(false);
-      return;
-    }
     try {
       const token = await getToken();
-      const updateUrl = `${API_URL}/api/users/${userId}`;
+      const updateUrl = `${API_URL}/api/users/me`;
       const data = {
         name,
         profilePicture: profilePictureUrl,
         githubUrl,
-        linkedinUrl,
+        linkedinLink: linkedinUrl, // Backend expects linkedinLink
         resumeLink,
         isEmployee,
         companyName: isEmployee ? companyName : '',
