@@ -39,8 +39,6 @@ const SIGN_OUT_ICON = (
   <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" /></svg>
 );
 
-const PROFILE_SECTION_HEIGHT = '168px'; // 8 (py-8) + 80 (avatar) + 8 (mb-2) + 24 (name) + 20 (email) + 28 (borders/padding)
-
 const Sidebar = ({
   backendUser,
   currentUser,
@@ -106,9 +104,7 @@ const Sidebar = ({
       <div
         className={`border-b border-gray-100 flex-shrink-0 transition-all duration-700 ease-in-out px-6`}
         style={{
-          height: PROFILE_SECTION_HEIGHT,
-          minHeight: PROFILE_SECTION_HEIGHT,
-          maxHeight: PROFILE_SECTION_HEIGHT,
+          // Removed height, minHeight, maxHeight
           overflow: 'hidden',
           paddingTop: sidebarCollapsed ? 0 : '2rem',
           paddingBottom: sidebarCollapsed ? 0 : '2rem',
@@ -132,14 +128,14 @@ const Sidebar = ({
             </span>
           )}
           <div className="font-semibold text-gray-900 text-lg text-center w-full truncate">{userName}</div>
-          <div className="text-gray-500 text-sm text-center w-full truncate mt-1 mb-3">{userEmail}</div>
+          <div className="text-gray-500 text-sm text-center w-full truncate mt-1">{userEmail}</div>
         </div>
       </div>
       {/* Section links: always at same vertical position */}
       <div className="flex-1 min-h-0 flex flex-col">
         <div className="flex-1 overflow-y-auto">
-          {/* Use a smaller margin-top for section links for a tighter layout */}
-          <nav className="mt-3">
+          {/* Remove margin-top for section links for a tighter, natural layout */}
+          <nav>
             <ul className="space-y-1">
               {SIDEBAR_LINKS.map(link => (
                 <li key={link.id}>
