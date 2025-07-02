@@ -4,26 +4,7 @@ import axios from 'axios';
 import { API_URL } from '../config/api';
 import LoadingPlaceholder from './LoadingPlaceholder';
 import { useNavigate } from 'react-router-dom';
-
-function Toast({ message, type = 'success', onClose }) {
-  // Industry-standard, simple alert style
-  return (
-    <div
-      className={`fixed top-6 right-6 z-50 flex items-center px-4 py-3 rounded-lg shadow-md border-l-4 text-base bg-white min-w-[220px] max-w-[340px]
-        ${type === 'error' ? 'border-red-500 text-red-700' : 'border-green-500 text-green-700'}`}
-      role="alert"
-    >
-      <span className="flex-1 font-medium">{message}</span>
-      <button
-        onClick={onClose}
-        className="ml-2 text-lg font-bold leading-none rounded-full hover:bg-gray-100 p-1 focus:outline-none"
-        aria-label="Close notification"
-      >
-        ×
-      </button>
-    </div>
-  );
-}
+import { Toast } from './Toast';
 
 export default function MyProfile() {
   const { currentUser, backendUser, getBackendUser, deleteAccount, loading: authLoading, refreshBackendUser } = useAuth();
@@ -31,7 +12,7 @@ export default function MyProfile() {
   const [email, setEmail] = useState('');
   const [profilePictureUrl, setProfilePictureUrl] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
-  const [linkedinUrl, setLinkedinUrl] = useState('');
+  const [linkedinLink, setLinkedinLink] = useState('');
   const [resumeLink, setResumeLink] = useState('');
   const [isEmployee, setIsEmployee] = useState(false);
   const [companyName, setCompanyName] = useState('');
@@ -42,6 +23,11 @@ export default function MyProfile() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Always fetch the latest backend user when MyProfile mounts
+    getBackendUser();
+  }, []);
+
   // Only initialize state from backendUser once
   useEffect(() => {
     if (!backendUser) return;
@@ -49,7 +35,7 @@ export default function MyProfile() {
     setEmail(backendUser.email || '');
     setProfilePictureUrl(backendUser.profilePicture || '');
     setGithubUrl(backendUser.githubUrl || '');
-    setLinkedinUrl(backendUser.linkedinUrl || '');
+    setLinkedinLink(backendUser.linkedinLink || '');
     setResumeLink(backendUser.resumeLink || '');
     setIsEmployee(!!backendUser.isEmployee);
     setCompanyName(backendUser.companyName || '');
@@ -71,7 +57,7 @@ export default function MyProfile() {
         name,
         profilePicture: profilePictureUrl,
         githubUrl,
-        linkedinLink: linkedinUrl, // Backend expects linkedinLink
+        linkedinLink, // Now matches state and backend
         resumeLink,
         isEmployee,
         companyName: isEmployee ? companyName : '',
@@ -171,9 +157,9 @@ export default function MyProfile() {
               type="url"
               id="linkedin"
               className="input"
-              value={linkedinUrl || ''}
-              onChange={(e) => setLinkedinUrl(e.target.value)}
-              placeholder={linkedinUrl ? '' : 'https://linkedin.com/in/yourprofile'}
+              value={linkedinLink || ''}
+              onChange={(e) => setLinkedinLink(e.target.value)}
+              placeholder={linkedinLink ? '' : 'https://linkedin.com/in/yourprofile'}
             />
           )}
         </div>
