@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HandRaisedIcon } from '@heroicons/react/24/outline';
+import { UserIcon as UserIconSolid } from '@heroicons/react/24/solid';
 
 const SIDEBAR_LINKS = [
   {
@@ -60,6 +61,7 @@ const Sidebar = ({
   const avatarLetter = userObj?.name?.[0]?.toUpperCase() || userObj?.email?.[0]?.toLowerCase() || 'U';
   const userName = userObj?.name || 'User';
   const userEmail = userObj?.email || '';
+  const profilePictureUrl = userObj?.profilePicture || '';
 
   return (
     <aside className={`${sidebarCollapsed ? 'w-20' : 'w-72'} bg-white border-r border-gray-200 flex flex-col h-screen transition-all duration-700 ease-in-out fixed left-0 top-0 z-30`} style={{transitionProperty: 'width, background, box-shadow, opacity'}}>
@@ -116,7 +118,19 @@ const Sidebar = ({
         }}
       >
         <div className="flex flex-col items-center w-full">
-          <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-primary-600 mb-2">{avatarLetter}</div>
+          {profilePictureUrl ? (
+            <img
+              src={profilePictureUrl}
+              alt="Profile"
+              className="w-20 h-20 rounded-full object-cover mb-2 border border-gray-200 bg-white"
+              onError={e => { e.target.onerror = null; e.target.src = ''; }}
+            />
+          ) : (
+            <span className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center mb-2">
+              {/* Modern Heroicons user solid icon */}
+              <UserIconSolid className="w-14 h-14 text-gray-400" aria-hidden="true" />
+            </span>
+          )}
           <div className="font-semibold text-gray-900 text-lg text-center w-full truncate">{userName}</div>
           <div className="text-gray-500 text-sm text-center w-full truncate mt-1">{userEmail}</div>
         </div>
@@ -124,7 +138,8 @@ const Sidebar = ({
       {/* Section links: always at same vertical position */}
       <div className="flex-1 min-h-0 flex flex-col">
         <div className="flex-1 overflow-y-auto">
-          <nav className="mt-10">
+          {/* Add extra margin-top to ensure robust spacing from profile area */}
+          <nav className="mt-16">
             <ul className="space-y-1">
               {SIDEBAR_LINKS.map(link => (
                 <li key={link.id}>
