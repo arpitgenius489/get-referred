@@ -166,7 +166,7 @@ export default function MyProfile() {
           )}
         </div>
         <div>
-          <label htmlFor="profilePictureUrl" className="form-label">Profile Picture URL</label>
+          <label htmlFor="profilePictureUrl" className="form-label">Profile Picture Link</label>
           {loading && loadingFields.includes('profilePicture') ? (
             <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
           ) : (
@@ -182,7 +182,7 @@ export default function MyProfile() {
           )}
         </div>
         <div>
-          <label htmlFor="github" className="form-label">GitHub URL</label>
+          <label htmlFor="github" className="form-label">GitHub Link</label>
           {loading && loadingFields.includes('githubLink') ? (
             <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
           ) : (
@@ -198,7 +198,7 @@ export default function MyProfile() {
           )}
         </div>
         <div>
-          <label htmlFor="linkedin" className="form-label">LinkedIn URL</label>
+          <label htmlFor="linkedin" className="form-label">LinkedIn Link</label>
           {loading && loadingFields.includes('linkedinLink') ? (
             <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
           ) : (
