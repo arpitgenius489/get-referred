@@ -39,8 +39,8 @@ export default function MyProfile() {
     const user = backendUser.data ? backendUser.data : backendUser;
     setName(user.name || '');
     setEmail(user.email || '');
-    setProfilePictureUrl(user.profilePicture || '');
-    setGithubUrl(user.githubUrl || '');
+    setProfilePictureUrl(user.profilePictureUrl || ''); // <-- camelCase
+    setGithubUrl(user.githubLink || '');
     setLinkedinLink(user.linkedinLink || '');
     setResumeLink(user.resumeLink || '');
     setIsEmployee(!!user.isEmployee);
@@ -48,8 +48,8 @@ export default function MyProfile() {
     setUserId(user.id);
     setInitialProfile({
       name: user.name || '',
-      profilePicture: user.profilePicture || '',
-      githubUrl: user.githubUrl || '',
+      profilePictureUrl: user.profilePictureUrl || '',
+      githubLink: user.githubLink || '',
       linkedinLink: user.linkedinLink || '',
       resumeLink: user.resumeLink || '',
       isEmployee: !!user.isEmployee,
@@ -71,8 +71,8 @@ export default function MyProfile() {
     if (!editMode) return;
     let changed = false;
     if (field === 'name' && value !== initialProfile.name) changed = true;
-    if (field === 'profilePicture' && value !== initialProfile.profilePicture) changed = true;
-    if (field === 'githubUrl' && value !== initialProfile.githubUrl) changed = true;
+    if (field === 'profilePictureUrl' && value !== initialProfile.profilePictureUrl) changed = true;
+    if (field === 'githubLink' && value !== initialProfile.githubLink) changed = true;
     if (field === 'linkedinLink' && value !== initialProfile.linkedinLink) changed = true;
     if (field === 'resumeLink' && value !== initialProfile.resumeLink) changed = true;
     if (field === 'isEmployee' && value !== initialProfile.isEmployee) changed = true;
@@ -94,13 +94,14 @@ export default function MyProfile() {
       // Only send changed fields
       const changedFieldsObj = {};
       if (changedFields.includes('name')) changedFieldsObj.name = name;
-      if (changedFields.includes('profilePicture')) changedFieldsObj.profilePicture = profilePictureUrl;
-      if (changedFields.includes('githubUrl')) changedFieldsObj.githubUrl = githubUrl;
+      if (changedFields.includes('profilePictureUrl')) changedFieldsObj.profilePictureUrl = profilePictureUrl;
+      if (changedFields.includes('githubLink')) changedFieldsObj.githubLink = githubUrl;
       if (changedFields.includes('linkedinLink')) changedFieldsObj.linkedinLink = linkedinLink;
       if (changedFields.includes('resumeLink')) changedFieldsObj.resumeLink = resumeLink;
       if (changedFields.includes('isEmployee')) changedFieldsObj.isEmployee = isEmployee;
       if (isEmployee && changedFields.includes('companyName')) changedFieldsObj.companyName = companyName;
       if (!isEmployee && initialProfile.isEmployee) changedFieldsObj.companyName = '';
+      console.log('Sending to backend:', changedFieldsObj); // Debug log
       if (Object.keys(changedFieldsObj).length === 0) {
         showToast('No changes to update.', 'info');
         setLoading(false);
@@ -110,7 +111,7 @@ export default function MyProfile() {
       }
       const headers = { Authorization: `Bearer ${token}` };
       await axios.put(updateUrl, changedFieldsObj, { headers });
-      await refreshBackendUser(); // Refresh context and sidebar
+      await refreshBackendUser();
       showToast('Profile updated successfully!', 'success');
       setEditMode(false);
       setChangedFields([]);
@@ -174,7 +175,7 @@ export default function MyProfile() {
               id="profilePictureUrl"
               className="input"
               value={profilePictureUrl || ''}
-              onChange={(e) => handleFieldChange('profilePicture', e.target.value, setProfilePictureUrl)}
+              onChange={(e) => handleFieldChange('profilePictureUrl', e.target.value, setProfilePictureUrl)}
               placeholder="Enter your profile picture URL"
               disabled={!editMode}
             />
