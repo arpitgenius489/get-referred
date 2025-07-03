@@ -167,7 +167,7 @@ export default function MyProfile() {
         </div>
         <div>
           <label htmlFor="profilePictureUrl" className="form-label">Profile Picture Link</label>
-          {loading && loadingFields.includes('profilePicture') ? (
+          {loading && loadingFields.includes('profilePictureUrl') ? (
             <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
           ) : (
             <input
