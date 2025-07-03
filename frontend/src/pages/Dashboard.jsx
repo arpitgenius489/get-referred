@@ -72,9 +72,9 @@ export default function Dashboard() {
         {/* Section Content */}
         <div className="bg-white rounded-lg shadow-sm p-6">
           {activeTab === 'profile' && <MyProfile />}
-          {activeTab === 'create-request' && currentUser?.role === 'JOB_SEEKER' && <CreateRequest />}
-          {activeTab === 'my-requests' && currentUser?.role === 'JOB_SEEKER' && <MyRequests />}
-          {activeTab === 'received-requests' && currentUser?.role === 'EMPLOYEE' && <ReceivedRequests />}
+          {activeTab === 'create-referral' && currentUser?.role === 'JOB_SEEKER' && <CreateRequest />}
+          {activeTab === 'view-referrals' && currentUser?.role === 'JOB_SEEKER' && <MyRequests />}
+          {activeTab === 'provide-referrals' && currentUser?.role === 'EMPLOYEE' && <ReceivedRequests />}
           {activeTab === 'admin-panel' && currentUser?.role === 'ADMIN' && <AdminPanel />}
         </div>
       </main>
