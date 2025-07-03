@@ -266,7 +266,7 @@ export default function MyProfile() {
           {(!editMode || (editMode && changedFields.length === 0)) && (
             <button
               type="button"
-              className="btn min-w-fit px-4 font-normal border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-all"
+              className="btn btn-primary min-w-fit px-4 font-normal"
               style={{ fontWeight: 400, letterSpacing: '0.02em' }}
               onClick={() => setEditMode(true)}
               disabled={loading || editMode}
