@@ -11,7 +11,7 @@ export default function MyProfile() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [profilePictureUrl, setProfilePictureUrl] = useState('');
-  const [githubUrl, setGithubUrl] = useState('');
+  const [githubLink, setGithubLink] = useState('');
   const [linkedinLink, setLinkedinLink] = useState('');
   const [resumeLink, setResumeLink] = useState('');
   const [isEmployee, setIsEmployee] = useState(false);
@@ -40,7 +40,7 @@ export default function MyProfile() {
     setName(user.name || '');
     setEmail(user.email || '');
     setProfilePictureUrl(user.profilePictureUrl || ''); // <-- camelCase
-    setGithubUrl(user.githubLink || '');
+    setGithubLink(user.githubLink || '');
     setLinkedinLink(user.linkedinLink || '');
     setResumeLink(user.resumeLink || '');
     setIsEmployee(!!user.isEmployee);
@@ -95,7 +95,7 @@ export default function MyProfile() {
       const changedFieldsObj = {};
       if (changedFields.includes('name')) changedFieldsObj.name = name;
       if (changedFields.includes('profilePictureUrl')) changedFieldsObj.profilePictureUrl = profilePictureUrl;
-      if (changedFields.includes('githubLink')) changedFieldsObj.githubLink = githubUrl;
+      if (changedFields.includes('githubLink')) changedFieldsObj.githubLink = githubLink;
       if (changedFields.includes('linkedinLink')) changedFieldsObj.linkedinLink = linkedinLink;
       if (changedFields.includes('resumeLink')) changedFieldsObj.resumeLink = resumeLink;
       if (changedFields.includes('isEmployee')) changedFieldsObj.isEmployee = isEmployee;
@@ -183,15 +183,15 @@ export default function MyProfile() {
         </div>
         <div>
           <label htmlFor="github" className="form-label">GitHub URL</label>
-          {loading && loadingFields.includes('githubUrl') ? (
+          {loading && loadingFields.includes('githubLink') ? (
             <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
           ) : (
             <input
               type="url"
               id="github"
               className="input"
-              value={githubUrl || ''}
-              onChange={(e) => handleFieldChange('githubUrl', e.target.value, setGithubUrl)}
+              value={githubLink || ''}
+              onChange={(e) => handleFieldChange('githubLink', e.target.value, setGithubLink)}
               placeholder="Enter your GitHub link"
               disabled={!editMode}
             />
