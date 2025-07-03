@@ -21,25 +21,43 @@ export default function MyProfile() {
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [initialProfile, setInitialProfile] = useState({});
+  const [changedFields, setChangedFields] = useState([]); // Track changed fields
+  const [loadingFields, setLoadingFields] = useState([]); // Track which fields are loading
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Always fetch the latest backend user when MyProfile mounts
-    getBackendUser();
+    // Show cached data immediately (from context), but trigger a background refresh
+    // This ensures fast UI and up-to-date data
+    refreshBackendUser();
   }, []);
 
   // Only initialize state from backendUser once
   useEffect(() => {
     if (!backendUser) return;
-    setName(backendUser.name || '');
-    setEmail(backendUser.email || '');
-    setProfilePictureUrl(backendUser.profilePicture || '');
-    setGithubUrl(backendUser.githubUrl || '');
-    setLinkedinLink(backendUser.linkedinLink || '');
-    setResumeLink(backendUser.resumeLink || '');
-    setIsEmployee(!!backendUser.isEmployee);
-    setCompanyName(backendUser.companyName || '');
-    setUserId(backendUser.id);
+    const user = backendUser.data ? backendUser.data : backendUser;
+    setName(user.name || '');
+    setEmail(user.email || '');
+    setProfilePictureUrl(user.profilePicture || '');
+    setGithubUrl(user.githubUrl || '');
+    setLinkedinLink(user.linkedinLink || '');
+    setResumeLink(user.resumeLink || '');
+    setIsEmployee(!!user.isEmployee);
+    setCompanyName(user.companyName || '');
+    setUserId(user.id);
+    setInitialProfile({
+      name: user.name || '',
+      profilePicture: user.profilePicture || '',
+      githubUrl: user.githubUrl || '',
+      linkedinLink: user.linkedinLink || '',
+      resumeLink: user.resumeLink || '',
+      isEmployee: !!user.isEmployee,
+      companyName: user.companyName || '',
+    });
+    setEditMode(false); // Reset edit mode on profile refresh
+    setChangedFields([]); // Reset changed fields
+    setLoadingFields([]); // Reset loading fields
   }, [backendUser]);
 
   function showToast(message, type = 'success') {
@@ -47,29 +65,60 @@ export default function MyProfile() {
     setTimeout(() => setToast({ show: false, message: '', type }), 2500);
   }
 
+  // Helper to track changed fields
+  function handleFieldChange(field, value, setter) {
+    setter(value);
+    if (!editMode) return;
+    let changed = false;
+    if (field === 'name' && value !== initialProfile.name) changed = true;
+    if (field === 'profilePicture' && value !== initialProfile.profilePicture) changed = true;
+    if (field === 'githubUrl' && value !== initialProfile.githubUrl) changed = true;
+    if (field === 'linkedinLink' && value !== initialProfile.linkedinLink) changed = true;
+    if (field === 'resumeLink' && value !== initialProfile.resumeLink) changed = true;
+    if (field === 'isEmployee' && value !== initialProfile.isEmployee) changed = true;
+    if (field === 'companyName' && value !== initialProfile.companyName) changed = true;
+    setChangedFields((prev) => {
+      if (changed && !prev.includes(field)) return [...prev, field];
+      if (!changed && prev.includes(field)) return prev.filter(f => f !== field);
+      return prev;
+    });
+  }
+
   async function handleUpdateProfile(e) {
     e.preventDefault();
     setLoading(true);
+    setLoadingFields([...changedFields]);
     try {
       const token = await currentUser.getIdToken();
       const updateUrl = `${API_URL}/api/users/me`;
-      const data = {
-        name,
-        profilePicture: profilePictureUrl,
-        githubUrl,
-        linkedinLink, // Now matches state and backend
-        resumeLink,
-        isEmployee,
-        companyName: isEmployee ? companyName : '',
-      };
+      // Only send changed fields
+      const changedFieldsObj = {};
+      if (changedFields.includes('name')) changedFieldsObj.name = name;
+      if (changedFields.includes('profilePicture')) changedFieldsObj.profilePicture = profilePictureUrl;
+      if (changedFields.includes('githubUrl')) changedFieldsObj.githubUrl = githubUrl;
+      if (changedFields.includes('linkedinLink')) changedFieldsObj.linkedinLink = linkedinLink;
+      if (changedFields.includes('resumeLink')) changedFieldsObj.resumeLink = resumeLink;
+      if (changedFields.includes('isEmployee')) changedFieldsObj.isEmployee = isEmployee;
+      if (isEmployee && changedFields.includes('companyName')) changedFieldsObj.companyName = companyName;
+      if (!isEmployee && initialProfile.isEmployee) changedFieldsObj.companyName = '';
+      if (Object.keys(changedFieldsObj).length === 0) {
+        showToast('No changes to update.', 'info');
+        setLoading(false);
+        setEditMode(false);
+        setLoadingFields([]);
+        return;
+      }
       const headers = { Authorization: `Bearer ${token}` };
-      await axios.put(updateUrl, data, { headers });
+      await axios.put(updateUrl, changedFieldsObj, { headers });
       await refreshBackendUser(); // Refresh context and sidebar
       showToast('Profile updated successfully!', 'success');
+      setEditMode(false);
+      setChangedFields([]);
     } catch (err) {
       showToast('Failed to update profile: ' + (err.response?.data?.message || err.message), 'error');
     } finally {
       setLoading(false);
+      setLoadingFields([]);
     }
   }
 
@@ -90,22 +139,18 @@ export default function MyProfile() {
       <form className="space-y-4" onSubmit={handleUpdateProfile}>
         <div>
           <label htmlFor="email" className="form-label">Email</label>
-          {loading ? (
-            <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
-          ) : (
-            <input
-              type="email"
-              id="email"
-              className="input bg-gray-100 cursor-not-allowed"
-              value={email || ''}
-              disabled
-              placeholder="Your email"
-            />
-          )}
+          <input
+            type="email"
+            id="email"
+            className="input bg-gray-100 cursor-not-allowed"
+            value={email || ''}
+            disabled
+            placeholder="Your email"
+          />
         </div>
         <div>
           <label htmlFor="name" className="form-label">Name</label>
-          {loading ? (
+          {loading && loadingFields.includes('name') ? (
             <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
           ) : (
             <input
@@ -113,14 +158,15 @@ export default function MyProfile() {
               id="name"
               className="input"
               value={name || ''}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={name ? '' : 'Enter your name'}
+              onChange={(e) => handleFieldChange('name', e.target.value, setName)}
+              placeholder="Enter your name"
+              disabled={!editMode}
             />
           )}
         </div>
         <div>
           <label htmlFor="profilePictureUrl" className="form-label">Profile Picture URL</label>
-          {loading ? (
+          {loading && loadingFields.includes('profilePicture') ? (
             <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
           ) : (
             <input
@@ -128,14 +174,15 @@ export default function MyProfile() {
               id="profilePictureUrl"
               className="input"
               value={profilePictureUrl || ''}
-              onChange={(e) => setProfilePictureUrl(e.target.value)}
-              placeholder={profilePictureUrl ? '' : 'https://your-image-url.com/profile.jpg'}
+              onChange={(e) => handleFieldChange('profilePicture', e.target.value, setProfilePictureUrl)}
+              placeholder="Enter your profile picture URL"
+              disabled={!editMode}
             />
           )}
         </div>
         <div>
           <label htmlFor="github" className="form-label">GitHub URL</label>
-          {loading ? (
+          {loading && loadingFields.includes('githubUrl') ? (
             <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
           ) : (
             <input
@@ -143,14 +190,15 @@ export default function MyProfile() {
               id="github"
               className="input"
               value={githubUrl || ''}
-              onChange={(e) => setGithubUrl(e.target.value)}
-              placeholder={githubUrl ? '' : 'https://github.com/yourprofile'}
+              onChange={(e) => handleFieldChange('githubUrl', e.target.value, setGithubUrl)}
+              placeholder="Enter your GitHub link"
+              disabled={!editMode}
             />
           )}
         </div>
         <div>
           <label htmlFor="linkedin" className="form-label">LinkedIn URL</label>
-          {loading ? (
+          {loading && loadingFields.includes('linkedinLink') ? (
             <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
           ) : (
             <input
@@ -158,14 +206,15 @@ export default function MyProfile() {
               id="linkedin"
               className="input"
               value={linkedinLink || ''}
-              onChange={(e) => setLinkedinLink(e.target.value)}
-              placeholder={linkedinLink ? '' : 'https://linkedin.com/in/yourprofile'}
+              onChange={(e) => handleFieldChange('linkedinLink', e.target.value, setLinkedinLink)}
+              placeholder="Enter your LinkedIn link"
+              disabled={!editMode}
             />
           )}
         </div>
         <div>
           <label htmlFor="resumeLink" className="form-label">Resume Link</label>
-          {loading ? (
+          {loading && loadingFields.includes('resumeLink') ? (
             <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
           ) : (
             <input
@@ -173,20 +222,22 @@ export default function MyProfile() {
               id="resumeLink"
               className="input"
               value={resumeLink || ''}
-              onChange={(e) => setResumeLink(e.target.value)}
-              placeholder={resumeLink ? '' : 'https://your-resume-link.com'}
+              onChange={(e) => handleFieldChange('resumeLink', e.target.value, setResumeLink)}
+              placeholder="Enter your resume link"
+              disabled={!editMode}
             />
           )}
         </div>
         <div className="flex items-center gap-2">
-          {loading ? (
+          {loading && loadingFields.includes('isEmployee') ? (
             <div className="h-5 w-5 bg-gray-200 rounded animate-pulse" />
           ) : (
             <input
               type="checkbox"
               id="isEmployee"
               checked={isEmployee}
-              onChange={(e) => setIsEmployee(e.target.checked)}
+              onChange={(e) => handleFieldChange('isEmployee', e.target.checked, setIsEmployee)}
+              disabled={!editMode}
             />
           )}
           <label htmlFor="isEmployee" className="form-label mb-0">I am an employee</label>
@@ -194,7 +245,7 @@ export default function MyProfile() {
         {isEmployee && (
           <div>
             <label htmlFor="companyName" className="form-label">Company Name</label>
-            {loading ? (
+            {loading && loadingFields.includes('companyName') ? (
               <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
             ) : (
               <input
@@ -202,20 +253,41 @@ export default function MyProfile() {
                 id="companyName"
                 className="input"
                 value={companyName || ''}
-                onChange={(e) => setCompanyName(e.target.value)}
-                placeholder={companyName ? '' : 'Enter your company name'}
+                onChange={(e) => handleFieldChange('companyName', e.target.value, setCompanyName)}
+                placeholder="Enter your company name"
+                disabled={!editMode}
               />
             )}
           </div>
         )}
         <div className="h-4" />
         <div className="mt-8 flex justify-between gap-3">
-          <button type="submit" className="btn btn-primary min-w-[140px]" disabled={loading}>
-            {loading ? 'Updating...' : 'Update Profile'}
-          </button>
+          {/* Left: Edit Profile or Save */}
+          {(!editMode || (editMode && changedFields.length === 0)) && (
+            <button
+              type="button"
+              className="btn min-w-fit px-4 font-normal border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-all"
+              style={{ fontWeight: 400, letterSpacing: '0.02em' }}
+              onClick={() => setEditMode(true)}
+              disabled={loading || editMode}
+            >
+              Edit Profile
+            </button>
+          )}
+          {editMode && changedFields.length > 0 && (
+            <button
+              type="submit"
+              className="btn btn-primary min-w-fit px-4"
+              style={{ fontWeight: 500, letterSpacing: '0.02em' }}
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : 'Save'}
+            </button>
+          )}
+          {/* Right: Delete Account */}
           <button
             type="button"
-            className="btn btn-danger min-w-[140px]"
+            className="btn btn-danger min-w-fit px-4 ml-auto"
             onClick={() => setShowDeleteModal(true)}
             disabled={loading}
           >
