@@ -28,7 +28,6 @@ const SIDEBAR_LINKS = [
   {
     id: 'provide-referrals',
     label: 'Provide Referrals',
-    // Standard hand raised icon from Heroicons
     icon: (
       <HandRaisedIcon className="h-5 w-5 mr-2" />
     ),

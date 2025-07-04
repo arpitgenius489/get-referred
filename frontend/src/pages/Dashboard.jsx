@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Sidebar from '../components/Sidebar';
 import MyProfile from '../components/MyProfile';
-import CreateRequest from '../components/CreateRequest';
-import MyRequests from '../components/MyRequests';
-import ReceivedRequests from '../components/ReceivedRequests';
+import CreateReferrals from '../components/CreateReferrals';
+import ViewReferrals from '../components/ViewReferrals';
+import ProvideReferrals from '../components/ProvideReferrals';
 import AdminPanel from '../components/AdminPanel';
 import LoadingPlaceholder from '../components/LoadingPlaceholder';
 import { useNavigate } from 'react-router-dom';
@@ -72,9 +72,9 @@ export default function Dashboard() {
         {/* Section Content */}
         <div className="bg-white rounded-lg shadow-sm p-6">
           {activeTab === 'profile' && <MyProfile />}
-          {activeTab === 'create-referral' && currentUser?.role === 'JOB_SEEKER' && <CreateRequest />}
-          {activeTab === 'view-referrals' && currentUser?.role === 'JOB_SEEKER' && <MyRequests />}
-          {activeTab === 'provide-referrals' && currentUser?.role === 'EMPLOYEE' && <ReceivedRequests />}
+          {activeTab === 'create-referral' && currentUser?.role === 'JOB_SEEKER' && <CreateReferrals />}
+          {activeTab === 'view-referrals' && currentUser?.role === 'JOB_SEEKER' && <ViewReferrals />}
+          {activeTab === 'provide-referrals' && currentUser?.role === 'EMPLOYEE' && <ProvideReferrals />}
           {activeTab === 'admin-panel' && currentUser?.role === 'ADMIN' && <AdminPanel />}
         </div>
       </main>
