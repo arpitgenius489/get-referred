@@ -5,44 +5,98 @@ import { API_URL } from '../config/api';
 import LoadingPlaceholder from './LoadingPlaceholder';
 
 export default function ProvideReferrals() {
-  const { currentUser } = useAuth();
+  const { getBackendUser, currentUser } = useAuth();
+  const backendUser = getBackendUser();
   const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const isEmployee = backendUser?.isEmployee || backendUser?.role === 'EMPLOYEE';
+
+  const fetchReferrals = async () => {
+    setLoading(true);
+    setError('');
+    if (!isEmployee) {
+      setReferrals([]);
+      setLoading(false);
+      return;
+    }
+    try {
+      const response = await axios.get(`${API_URL}/api/referrals/received`, {
+        headers: {
+          Authorization: `Bearer ${currentUser?.accessToken || currentUser?.token}`,
+        },
+      });
+      setReferrals(response.data.data || []);
+    } catch (err) {
+      setError('Failed to fetch referrals.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/referrals`, {
-          headers: {
-            Authorization: `Bearer ${currentUser.token}`,
-          },
-        });
-        setReferrals(response.data);
-      } catch (error) {
-        console.error('Error fetching referral data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchReferrals();
+    // eslint-disable-next-line
+  }, [currentUser, isEmployee]);
 
-    fetchData();
-  }, [currentUser.token]);
+  const handleStatusUpdate = async (id, newStatus) => {
+    try {
+      await axios.put(`${API_URL}/api/referrals/${id}/status`, JSON.stringify(newStatus), {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${currentUser?.accessToken || currentUser?.token}`,
+        },
+      });
+      fetchReferrals();
+    } catch (err) {
+      setError('Failed to update status.');
+    }
+  };
 
-  if (loading) {
-    return <LoadingPlaceholder />;
+  if (loading) return <LoadingPlaceholder />;
+
+  if (!isEmployee) {
+    return (
+      <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow text-center text-gray-500">
+        You are not registered as an employee. No referrals to provide.
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h1>Provide Referrals</h1>
+    <div className="max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900">Provide Referrals</h2>
+      {error && <div className="mb-4 p-3 rounded bg-red-50 text-red-700 font-medium">{error}</div>}
       {referrals.length === 0 ? (
-        <p>No referrals found.</p>
+        <div className="bg-white p-8 rounded-lg shadow text-center text-gray-500">No referrals found.</div>
       ) : (
-        <ul>
-          {referrals.map((referral) => (
-            <li key={referral.id}>{referral.name}</li>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {referrals.map(referral => (
+            <div key={referral.id} className="bg-white rounded-lg shadow p-6 flex flex-col gap-2">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-semibold text-lg text-primary-700">{referral.jobId}</span>
+                <span className="text-sm text-gray-500 font-semibold uppercase">{referral.status}</span>
+              </div>
+              <div className="text-gray-700 mb-1">Company: <span className="font-medium">{referral.companyName}</span></div>
+              <div className="text-gray-700 mb-1">Job Seeker: <span className="font-medium">{referral.jobSeekerName}</span></div>
+              <div className="flex gap-2 mt-2">
+                <button
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold py-1.5 px-4 rounded transition-colors duration-200 shadow"
+                  onClick={() => handleStatusUpdate(referral.id, 'ACCEPTED')}
+                >
+                  Accept
+                </button>
+                <button
+                  className="bg-red-600 hover:bg-red-700 text-white font-semibold py-1.5 px-4 rounded transition-colors duration-200 shadow"
+                  onClick={() => handleStatusUpdate(referral.id, 'REJECTED')}
+                >
+                  Reject
+                </button>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

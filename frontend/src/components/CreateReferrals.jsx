@@ -1,28 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { API_URL } from '../config/api';
 import LoadingPlaceholder from './LoadingPlaceholder';
 
 export default function CreateReferrals() {
   const [formData, setFormData] = useState({
-    patientName: '',
-    patientEmail: '',
-    patientPhone: '',
-    referralReason: '',
+    jobId: '',
+    companyName: '',
+    linkedinUrl: '',
+    githubUrl: '',
+    resumeLink: '',
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const { currentUser } = useAuth();
-
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => {
-        setSuccess(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,82 +26,97 @@ export default function CreateReferrals() {
     e.preventDefault();
     setLoading(true);
     setError('');
-
+    setSuccess(false);
     try {
-      await axios.post('/api/referrals', {
-        ...formData,
-        userId: currentUser.uid,
+      await axios.post(`${API_URL}/api/referrals`, formData, {
+        headers: {
+          Authorization: `Bearer ${currentUser?.accessToken || currentUser?.token}`,
+        },
       });
       setSuccess(true);
-      setFormData({
-        patientName: '',
-        patientEmail: '',
-        patientPhone: '',
-        referralReason: '',
-      });
+      setFormData({ jobId: '', companyName: '', linkedinUrl: '', githubUrl: '', resumeLink: '' });
     } catch (err) {
-      setError('Failed to create referral. Please try again.');
+      setError(
+        err.response?.data?.message || 'Failed to create referral. Please check your input and try again.'
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return <LoadingPlaceholder />;
-  }
+  if (loading) return <LoadingPlaceholder />;
 
   return (
-    <div className="create-referral">
-      <h2>Create Referral</h2>
-      {success && <div className="success-message">Referral created successfully!</div>}
-      {error && <div className="error-message">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="patientName">Patient Name</label>
+    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-8">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900">Create Referral</h2>
+      {success && <div className="mb-4 p-3 rounded bg-green-50 text-green-700 font-medium">Referral created successfully!</div>}
+      {error && <div className="mb-4 p-3 rounded bg-red-50 text-red-700 font-medium">{error}</div>}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label htmlFor="jobId" className="block text-sm font-medium text-gray-700 mb-1">Job ID/Title<span className="text-red-500">*</span></label>
           <input
             type="text"
-            id="patientName"
-            name="patientName"
-            value={formData.patientName}
+            id="jobId"
+            name="jobId"
+            value={formData.jobId}
             onChange={handleChange}
             required
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="patientEmail">Patient Email</label>
+        <div>
+          <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">Company Name<span className="text-red-500">*</span></label>
           <input
-            type="email"
-            id="patientEmail"
-            name="patientEmail"
-            value={formData.patientEmail}
+            type="text"
+            id="companyName"
+            name="companyName"
+            value={formData.companyName}
             onChange={handleChange}
             required
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="patientPhone">Patient Phone</label>
+        <div>
+          <label htmlFor="linkedinUrl" className="block text-sm font-medium text-gray-700 mb-1">LinkedIn URL</label>
           <input
-            type="tel"
-            id="patientPhone"
-            name="patientPhone"
-            value={formData.patientPhone}
+            type="url"
+            id="linkedinUrl"
+            name="linkedinUrl"
+            value={formData.linkedinUrl}
             onChange={handleChange}
-            required
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="referralReason">Reason for Referral</label>
-          <textarea
-            id="referralReason"
-            name="referralReason"
-            value={formData.referralReason}
+        <div>
+          <label htmlFor="githubUrl" className="block text-sm font-medium text-gray-700 mb-1">GitHub URL</label>
+          <input
+            type="url"
+            id="githubUrl"
+            name="githubUrl"
+            value={formData.githubUrl}
             onChange={handleChange}
-            required
-          ></textarea>
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          />
         </div>
-        <button type="submit" className="btn btn-primary">
-          Create Referral
-        </button>
+        <div>
+          <label htmlFor="resumeLink" className="block text-sm font-medium text-gray-700 mb-1">Resume Link</label>
+          <input
+            type="url"
+            id="resumeLink"
+            name="resumeLink"
+            value={formData.resumeLink}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          />
+        </div>
+        <div className="pt-2">
+          <button
+            type="submit"
+            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-200 shadow"
+          >
+            Create Referral
+          </button>
+        </div>
       </form>
     </div>
   );
