@@ -58,18 +58,23 @@ export default function ProvideReferrals() {
 
   if (!isEmployee) {
     return (
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow text-center text-gray-500">
-        You are not registered as an employee. No referrals to provide.
+      <div className="">
+        <h2 className="text-2xl font-semibold mb-10 text-gray-900">Provide Referrals</h2>
+        <div className="flex flex-col items-center justify-center min-h-[200px]">
+          <span className="text-gray-500 text-lg font-medium" style={{marginTop: '2rem'}}>You are not registered as an employee. No referrals to provide.</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900">Provide Referrals</h2>
+    <div className="">
+      <h2 className="text-2xl font-semibold mb-10 text-gray-900">Provide Referrals</h2>
       {error && <div className="mb-4 p-3 rounded bg-red-50 text-red-700 font-medium">{error}</div>}
       {referrals.length === 0 ? (
-        <div className="bg-white p-8 rounded-lg shadow text-center text-gray-500">No referrals found.</div>
+        <div className="flex flex-col items-center justify-center min-h-[200px]">
+          <span className="text-gray-500 text-lg font-medium" style={{marginTop: '2rem'}}>No referrals found.</span>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {referrals.map(referral => (

@@ -41,8 +41,8 @@ export default function ViewReferrals() {
   if (loading) return <LoadingPlaceholder />;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900">My Referrals</h2>
+    <div className="">
+      <h2 className="text-2xl font-semibold mb-10 text-gray-900">View Referrals</h2>
       <div className="mb-6 flex gap-2 items-center">
         <label htmlFor="statusFilter" className="font-medium text-gray-700">Filter by status:</label>
         <select
@@ -55,7 +55,9 @@ export default function ViewReferrals() {
         </select>
       </div>
       {referrals.length === 0 ? (
-        <div className="bg-white p-8 rounded-lg shadow text-center text-gray-500">No referrals found.</div>
+        <div className="flex flex-col items-center justify-center min-h-[200px]">
+          <span className="text-gray-500 text-lg font-medium" style={{marginTop: '2rem'}}>No referrals found.</span>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {referrals.map(referral => (
