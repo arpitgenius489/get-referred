@@ -6,7 +6,9 @@ import LoadingPlaceholder from './LoadingPlaceholder';
 
 export default function CreateReferrals() {
   const [formData, setFormData] = useState({
+    jobTitle: '',
     jobId: '',
+    jobLink: '',
     companyName: '',
     linkedinUrl: '',
     githubUrl: '',
@@ -34,7 +36,7 @@ export default function CreateReferrals() {
         },
       });
       setSuccess(true);
-      setFormData({ jobId: '', companyName: '', linkedinUrl: '', githubUrl: '', resumeLink: '' });
+      setFormData({ jobTitle: '', jobId: '', jobLink: '', companyName: '', linkedinUrl: '', githubUrl: '', resumeLink: '' });
     } catch (err) {
       setError(
         err.response?.data?.message || 'Failed to create referral. Please check your input and try again.'
@@ -47,72 +49,102 @@ export default function CreateReferrals() {
   if (loading) return <LoadingPlaceholder />;
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-8">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900">Create Referral</h2>
+    <div className="">
+      <h2 className="text-2xl font-semibold mb-10 text-gray-900">Create Referral</h2>
       {success && <div className="mb-4 p-3 rounded bg-green-50 text-green-700 font-medium">Referral created successfully!</div>}
       {error && <div className="mb-4 p-3 rounded bg-red-50 text-red-700 font-medium">{error}</div>}
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="jobId" className="block text-sm font-medium text-gray-700 mb-1">Job ID/Title<span className="text-red-500">*</span></label>
+          <label htmlFor="jobTitle" className="form-label">Job Title<span className="text-red-500">*</span></label>
+          <input
+            type="text"
+            id="jobTitle"
+            name="jobTitle"
+            className="input"
+            value={formData.jobTitle}
+            onChange={handleChange}
+            required
+            placeholder="Enter job title"
+          />
+        </div>
+        <div>
+          <label htmlFor="jobId" className="form-label">Job ID</label>
           <input
             type="text"
             id="jobId"
             name="jobId"
+            className="input"
             value={formData.jobId}
             onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            placeholder="Enter job ID (optional)"
           />
         </div>
         <div>
-          <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">Company Name<span className="text-red-500">*</span></label>
+          <label htmlFor="jobLink" className="form-label">Job Link</label>
+          <input
+            type="url"
+            id="jobLink"
+            name="jobLink"
+            className="input"
+            value={formData.jobLink}
+            onChange={handleChange}
+            placeholder="Enter job link (optional)"
+          />
+        </div>
+        <div>
+          <label htmlFor="companyName" className="form-label">Company Name<span className="text-red-500">*</span></label>
           <input
             type="text"
             id="companyName"
             name="companyName"
+            className="input"
             value={formData.companyName}
             onChange={handleChange}
             required
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            placeholder="Enter company name"
           />
         </div>
         <div>
-          <label htmlFor="linkedinUrl" className="block text-sm font-medium text-gray-700 mb-1">LinkedIn URL</label>
+          <label htmlFor="linkedinUrl" className="form-label">LinkedIn URL</label>
           <input
             type="url"
             id="linkedinUrl"
             name="linkedinUrl"
+            className="input"
             value={formData.linkedinUrl}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            placeholder="Enter LinkedIn URL (optional)"
           />
         </div>
         <div>
-          <label htmlFor="githubUrl" className="block text-sm font-medium text-gray-700 mb-1">GitHub URL</label>
+          <label htmlFor="githubUrl" className="form-label">GitHub URL</label>
           <input
             type="url"
             id="githubUrl"
             name="githubUrl"
+            className="input"
             value={formData.githubUrl}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            placeholder="Enter GitHub URL (optional)"
           />
         </div>
         <div>
-          <label htmlFor="resumeLink" className="block text-sm font-medium text-gray-700 mb-1">Resume Link</label>
+          <label htmlFor="resumeLink" className="form-label">Resume Link</label>
           <input
             type="url"
             id="resumeLink"
             name="resumeLink"
+            className="input"
             value={formData.resumeLink}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            placeholder="Enter resume link (optional)"
           />
         </div>
+        <div className="h-4" />
         <div className="pt-2">
           <button
             type="submit"
-            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-200 shadow"
+            className="btn btn-primary min-w-fit px-4 font-normal"
           >
             Create Referral
           </button>
