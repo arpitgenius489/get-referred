@@ -116,8 +116,9 @@ public class UserService {
                 if (dto.getGithubLink() != null) user.setGithubLink(dto.getGithubLink());
                 if (dto.getLinkedinLink() != null) user.setLinkedinLink(dto.getLinkedinLink());
                 if (dto.getResumeLink() != null) user.setResumeLink(dto.getResumeLink());
-                if (dto.getIsEmployee() != null) user.setIsEmployee(dto.getIsEmployee());
-                if (dto.getCompanyName() != null) user.setCompanyName(dto.getCompanyName());
+                if (dto.getCompanyName() != null) {
+                    user.setCompanyName(dto.getCompanyName());
+                }
                 return userRepository.save(user);
             })
             .orElseThrow(() -> new RuntimeException("User not found with firebaseUid: " + firebaseUid));

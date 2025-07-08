@@ -14,4 +14,5 @@ public interface ReferralRequestRepository extends JpaRepository<ReferralRequest
     List<ReferralRequest> findByEmployeeId(Long employeeId);
     List<ReferralRequest> findByStatus(Status status);
     List<ReferralRequest> findByCompanyNameIgnoreCaseAndStatusAndEmployeeIsNull(String companyName, ReferralRequest.Status status);
+    List<ReferralRequest> findByCompanyNameIgnoreCase(String companyName);
 }

@@ -6,7 +6,6 @@ public class UserProfileUpdateDTO {
     private String githubLink;
     private String linkedinLink;
     private String resumeLink;
-    private Boolean isEmployee;
     private String companyName;
 
     // Getters and setters
@@ -20,8 +19,6 @@ public class UserProfileUpdateDTO {
     public void setLinkedinLink(String linkedinLink) { this.linkedinLink = linkedinLink; }
     public String getResumeLink() { return resumeLink; }
     public void setResumeLink(String resumeLink) { this.resumeLink = resumeLink; }
-    public Boolean getIsEmployee() { return isEmployee; }
-    public void setIsEmployee(Boolean isEmployee) { this.isEmployee = isEmployee; }
     public String getCompanyName() { return companyName; }
     public void setCompanyName(String companyName) { this.companyName = companyName; }
 }

@@ -154,9 +154,10 @@ public class ReferralRequestService {
 
     public List<ReferralRequest> getUnclaimedReferralRequestsForEmployeeCompany(User employee) {
         String companyName = employee.getCompanyName();
-        if (companyName == null || !Boolean.TRUE.equals(employee.getIsEmployee())) {
-            return List.of();
-        }
         return referralRequestRepository.findByCompanyNameIgnoreCaseAndStatusAndEmployeeIsNull(companyName, Status.PENDING);
+    }
+
+    public List<ReferralRequest> getReferralRequestsByCompanyName(String companyName) {
+        return referralRequestRepository.findByCompanyNameIgnoreCase(companyName);
     }
 }

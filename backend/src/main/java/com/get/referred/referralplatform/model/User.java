@@ -63,9 +63,6 @@ public class User {
     @Column(name = "resume_link")
     private String resumeLink;
 
-    @Column(name = "is_employee")
-    private Boolean isEmployee;
-
     @Column(name = "company_name")
     private String companyName;
 
@@ -127,9 +124,6 @@ public class User {
 
     public String getResumeLink() { return resumeLink; }
     public void setResumeLink(String resumeLink) { this.resumeLink = resumeLink; }
-
-    public Boolean getIsEmployee() { return isEmployee; }
-    public void setIsEmployee(Boolean isEmployee) { this.isEmployee = isEmployee; }
 
     public String getCompanyName() { return companyName; }
     public void setCompanyName(String companyName) { this.companyName = companyName; }

@@ -9,12 +9,11 @@ public class UserDTO {
     private String githubLink;
     private String linkedinLink;
     private String resumeLink;
-    private Boolean isEmployee;
     private String companyName;
 
     public UserDTO() {}
 
-    public UserDTO(Long id, String name, String email, String role, String profilePictureUrl, String githubLink, String linkedinLink, String resumeLink, Boolean isEmployee, String companyName) {
+    public UserDTO(Long id, String name, String email, String role, String profilePictureUrl, String githubLink, String linkedinLink, String resumeLink, String companyName) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -23,7 +22,6 @@ public class UserDTO {
         this.githubLink = githubLink;
         this.linkedinLink = linkedinLink;
         this.resumeLink = resumeLink;
-        this.isEmployee = isEmployee;
         this.companyName = companyName;
     }
 
@@ -67,8 +65,6 @@ public class UserDTO {
     public void setLinkedinLink(String linkedinLink) { this.linkedinLink = linkedinLink; }
     public String getResumeLink() { return resumeLink; }
     public void setResumeLink(String resumeLink) { this.resumeLink = resumeLink; }
-    public Boolean getIsEmployee() { return isEmployee; }
-    public void setIsEmployee(Boolean isEmployee) { this.isEmployee = isEmployee; }
     public String getCompanyName() { return companyName; }
     public void setCompanyName(String companyName) { this.companyName = companyName; }
 
@@ -83,7 +79,6 @@ public class UserDTO {
             user.getGithubLink(),
             user.getLinkedinLink(),
             user.getResumeLink(),
-            user.getIsEmployee(),
             user.getCompanyName()
         );
     }

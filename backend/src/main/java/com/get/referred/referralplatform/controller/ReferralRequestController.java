@@ -70,19 +70,22 @@ public class ReferralRequestController {
     }
 
     @GetMapping("/received")
-    @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getReceivedReferralRequests(@RequestHeader("Authorization") String authHeader) {
         String firebaseUid = userService.extractFirebaseUidFromAuthHeader(authHeader);
-        User employee = userService.findByFirebaseUid(firebaseUid).orElse(null);
-        if (employee == null) {
-            return ResponseEntity.status(404).body(new ApiResponse<>(false, "Employee not found", null));
+        User user = userService.findByFirebaseUid(firebaseUid).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(404).body(new ApiResponse<>(false, "User not found", null));
         }
-        List<ReferralRequestDTO> dtos = referralRequestService.toDTOList(referralRequestService.getUnclaimedReferralRequestsForEmployeeCompany(employee));
+        String companyName = user.getCompanyName();
+        if (companyName == null || companyName.trim().isEmpty()) {
+            return ResponseEntity.ok(new ApiResponse<>(true, "Please set your company name to view provider referrals.", List.of()));
+        }
+        List<ReferralRequestDTO> dtos = referralRequestService.toDTOList(referralRequestService.getReferralRequestsByCompanyName(companyName));
         return ResponseEntity.ok(new ApiResponse<>(true, "Received referral requests fetched", dtos));
     }
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasRole('EMPLOYEE') and @referralRequestService.isEmployee(#id, authentication.principal.id)")
+    @PreAuthorize("@userService.hasEmployeeAccess(authentication.principal.id) and @referralRequestService.isEmployee(#id, authentication.principal.id)")
     public ResponseEntity<ApiResponse<ReferralRequestDTO>> updateReferralRequestStatus(
             @PathVariable Long id,
             @RequestBody ReferralRequest.Status newStatus) {
@@ -108,14 +111,14 @@ public class ReferralRequestController {
     }
 
     @GetMapping("/pending")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("@userService.hasEmployeeAccess(authentication.principal.id)")
     public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getPendingReferralRequests() {
         List<ReferralRequestDTO> dtos = referralRequestService.toDTOList(referralRequestService.getPendingReferralRequests());
         return ResponseEntity.ok(new ApiResponse<>(true, "Pending referral requests fetched", dtos));
     }
 
     @GetMapping("/hired")
-    @PreAuthorize("hasRole('EMPLOYEE') or hasRole('JOB_SEEKER')")
+    @PreAuthorize("@userService.hasEmployeeAccess(authentication.principal.id) or hasRole('JOB_SEEKER')")
     public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getHiredReferralRequests(@RequestHeader("Authorization") String authHeader) {
         String firebaseUid = userService.extractFirebaseUidFromAuthHeader(authHeader);
         List<ReferralRequestDTO> dtos = referralRequestService.filterReferralRequestsByStatusAndUser(firebaseUid, "HIRED");
