@@ -64,6 +64,9 @@ public class ReferralRequest {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "resume_link")
+    private String resumeLink;
+
     public enum Status {
         PENDING,
         ACCEPTED,
@@ -134,4 +137,10 @@ public class ReferralRequest {
     public void setJobId(String jobId) {
         this.jobId = jobId;
     }
+    public String getResumeLink() { return resumeLink; }
+    public void setResumeLink(String resumeLink) { this.resumeLink = resumeLink; }
+    public String getGithubUrl() { return githubUrl; }
+    public void setGithubUrl(String githubUrl) { this.githubUrl = githubUrl; }
+    public String getLinkedinUrl() { return linkedinUrl; }
+    public void setLinkedinUrl(String linkedinUrl) { this.linkedinUrl = linkedinUrl; }
 }

@@ -45,6 +45,9 @@ public class ReferralRequestController {
         request.setJobId(requestDto.getJobId());
         request.setJobLink(requestDto.getJobLink());
         request.setCompanyName(requestDto.getCompanyName());
+        request.setGithubUrl(requestDto.getGithubLink());
+        request.setResumeLink(requestDto.getResumeLink());
+        request.setLinkedinUrl(requestDto.getLinkedinLink());
         // Set jobSeeker and other required fields as per your logic
         ReferralRequest created = referralRequestService.createReferralRequest(request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Referral request created successfully", ReferralRequestDTO.fromEntity(created)));

@@ -36,6 +36,7 @@ public class ReferralRequestService {
         request.setStatus(Status.PENDING);
         request.setCreatedAt(LocalDateTime.now());
         request.setEmployee(null); // Not claimed yet
+        // githubUrl, resumeLink, and linkedinUrl are set by controller
         return referralRequestRepository.save(request);
     }
 

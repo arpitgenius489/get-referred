@@ -20,6 +20,9 @@ public class ReferralRequestDTO {
     private String employeeName;
     private String employeeEmail;
     private String employeeLinkedin;
+    private String githubLink;
+    private String resumeLink;
+    private String linkedinLink;
 
     public ReferralRequestDTO() {}
 
@@ -170,6 +173,13 @@ public class ReferralRequestDTO {
         this.employeeLinkedin = employeeLinkedin;
     }
 
+    public String getGithubLink() { return githubLink; }
+    public void setGithubLink(String githubLink) { this.githubLink = githubLink; }
+    public String getResumeLink() { return resumeLink; }
+    public void setResumeLink(String resumeLink) { this.resumeLink = resumeLink; }
+    public String getLinkedinLink() { return linkedinLink; }
+    public void setLinkedinLink(String linkedinLink) { this.linkedinLink = linkedinLink; }
+
     public static ReferralRequestDTO fromEntity(com.get.referred.referralplatform.model.ReferralRequest request) {
         if (request == null) return null;
         ReferralRequestDTO dto = new ReferralRequestDTO(
@@ -185,6 +195,9 @@ public class ReferralRequestDTO {
             request.getJobSeeker() != null ? request.getJobSeeker().getId() : null,
             request.getEmployee() != null ? request.getEmployee().getId() : null
         );
+        dto.setGithubLink(request.getGithubUrl());
+        dto.setResumeLink(request.getResumeLink());
+        dto.setLinkedinLink(request.getLinkedinUrl());
         if (request.getJobSeeker() != null) {
             dto.setJobSeekerName(request.getJobSeeker().getName());
             dto.setJobSeekerEmail(request.getJobSeeker().getEmail());
