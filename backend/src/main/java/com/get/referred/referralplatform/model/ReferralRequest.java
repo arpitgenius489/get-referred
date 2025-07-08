@@ -33,8 +33,14 @@ public class ReferralRequest {
     private User employee;
 
     @NotBlank
-    @Column(name = "job_id", nullable = false)
+    @Column(name = "job_title", nullable = false)
+    private String jobTitle;
+
+    @Column(name = "job_id", nullable = true)
     private String jobId;
+
+    @Column(name = "job_link", nullable = true)
+    private String jobLink;
 
     @NotBlank
     @Column(name = "company_name", nullable = false)
@@ -109,5 +115,23 @@ public class ReferralRequest {
     }
     public String getCompanyName() {
         return companyName;
+    }
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+    public String getJobTitle() {
+        return jobTitle;
+    }
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
+    public String getJobLink() {
+        return jobLink;
+    }
+    public void setJobLink(String jobLink) {
+        this.jobLink = jobLink;
+    }
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
     }
 }

@@ -118,7 +118,7 @@ export default function CreateReferrals() {
           />
         </div>
         <div>
-          <label htmlFor="linkedinUrl" className="form-label">LinkedIn URL</label>
+          <label htmlFor="linkedinUrl" className="form-label">LinkedIn Link</label>
           <input
             type="url"
             id="linkedinUrl"
@@ -126,11 +126,11 @@ export default function CreateReferrals() {
             className="input"
             value={formData.linkedinUrl}
             onChange={handleChange}
-            placeholder="Enter your LinkedIn URL"
+            placeholder="Enter your LinkedIn link"
           />
         </div>
         <div>
-          <label htmlFor="githubUrl" className="form-label">GitHub URL</label>
+          <label htmlFor="githubUrl" className="form-label">GitHub Link</label>
           <input
             type="url"
             id="githubUrl"
@@ -138,7 +138,7 @@ export default function CreateReferrals() {
             className="input"
             value={formData.githubUrl}
             onChange={handleChange}
-            placeholder="Enter your GitHub URL"
+            placeholder="Enter your GitHub link"
           />
         </div>
         <div>

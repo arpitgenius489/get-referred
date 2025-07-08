@@ -36,7 +36,16 @@ public class ReferralRequestController {
 
     @PostMapping
     @PreAuthorize("hasRole('JOB_SEEKER')")
-    public ResponseEntity<ApiResponse<ReferralRequestDTO>> createReferralRequest(@Valid @RequestBody ReferralRequest request) {
+    public ResponseEntity<ApiResponse<ReferralRequestDTO>> createReferralRequest(@Valid @RequestBody ReferralRequestDTO requestDto) {
+        if (requestDto.getJobTitle() == null || requestDto.getJobTitle().isBlank()) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Job title is required", null));
+        }
+        ReferralRequest request = new ReferralRequest();
+        request.setJobTitle(requestDto.getJobTitle());
+        request.setJobId(requestDto.getJobId());
+        request.setJobLink(requestDto.getJobLink());
+        request.setCompanyName(requestDto.getCompanyName());
+        // Set jobSeeker and other required fields as per your logic
         ReferralRequest created = referralRequestService.createReferralRequest(request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Referral request created successfully", ReferralRequestDTO.fromEntity(created)));
     }

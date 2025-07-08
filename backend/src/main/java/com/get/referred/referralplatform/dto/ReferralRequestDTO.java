@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 public class ReferralRequestDTO {
     private Long id;
     private String jobId;
+    private String jobTitle;
+    private String jobLink;
     private String companyName;
     private String status;
     private Integer rating;
@@ -21,9 +23,11 @@ public class ReferralRequestDTO {
 
     public ReferralRequestDTO() {}
 
-    public ReferralRequestDTO(Long id, String jobId, String companyName, String status, Integer rating, LocalDateTime createdAt, LocalDateTime updatedAt, Long jobSeekerId, Long employeeId) {
+    public ReferralRequestDTO(Long id, String jobId, String jobTitle, String jobLink, String companyName, String status, Integer rating, LocalDateTime createdAt, LocalDateTime updatedAt, Long jobSeekerId, Long employeeId) {
         this.id = id;
         this.jobId = jobId;
+        this.jobTitle = jobTitle;
+        this.jobLink = jobLink;
         this.companyName = companyName;
         this.status = status;
         this.rating = rating;
@@ -47,6 +51,19 @@ public class ReferralRequestDTO {
 
     public void setJobId(String jobId) {
         this.jobId = jobId;
+    }
+
+    public String getJobTitle() {
+        return jobTitle;
+    }
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
+    public String getJobLink() {
+        return jobLink;
+    }
+    public void setJobLink(String jobLink) {
+        this.jobLink = jobLink;
     }
 
     public String getCompanyName() {
@@ -158,6 +175,8 @@ public class ReferralRequestDTO {
         ReferralRequestDTO dto = new ReferralRequestDTO(
             request.getId(),
             request.getJobId(),
+            request.getJobTitle(),
+            request.getJobLink(),
             request.getCompanyName(),
             request.getStatus() != null ? request.getStatus().name() : null,
             request.getRating(),
