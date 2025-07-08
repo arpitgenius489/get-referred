@@ -60,8 +60,10 @@ export default function ProvideReferrals() {
     return (
       <div className="">
         <h2 className="text-2xl font-semibold mb-10 text-gray-900">Provide Referrals</h2>
-        <div className="flex flex-col items-center justify-center min-h-[200px]">
-          <span className="text-gray-500 text-lg font-medium" style={{marginTop: '2rem'}}>You are not registered as an employee. No referrals to provide.</span>
+        <div className="flex items-center justify-center min-h-[200px] w-full">
+          <span className="text-gray-500 text-lg font-medium text-center">
+            You can provide referrals only if you are an employee. To enable this, go to your profile, toggle "I'm an employee", and enter your company name.
+          </span>
         </div>
       </div>
     );
@@ -81,8 +83,10 @@ export default function ProvideReferrals() {
           <LoadingPlaceholder type="referral-card" count={4} />
         </div>
       ) : referrals.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[200px]">
-          <span className="text-gray-500 text-lg font-medium" style={{marginTop: '2rem'}}>No referrals found.</span>
+        <div className="flex items-center justify-center min-h-[200px] w-full">
+          <span className="text-gray-500 text-lg font-medium text-center">
+            No referrals found.
+          </span>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

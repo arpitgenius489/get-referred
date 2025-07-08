@@ -59,6 +59,10 @@ export default function CreateReferrals() {
     }
   };
 
+  if (!backendUser) {
+    return <LoadingPlaceholder />;
+  }
+
   if (loading) return <LoadingPlaceholder />;
 
   return (
