@@ -48,6 +48,19 @@ export default function LoadingPlaceholder({ type = 'card', count = 1 }) {
             </div>
           </div>
         );
+      case 'referral-card':
+        return (
+          <div className="bg-white rounded-lg shadow p-6 animate-pulse flex flex-col gap-2">
+            <div className="flex justify-between items-center mb-2">
+              <div className="h-5 bg-gray-200 rounded w-1/3" />
+              <div className="h-4 bg-gray-200 rounded w-1/6" />
+            </div>
+            <div className="h-4 bg-gray-200 rounded w-2/3 mb-1" />
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-1" />
+            <div className="h-4 bg-gray-200 rounded w-1/4 mb-1" />
+            <div className="h-3 bg-gray-200 rounded w-1/3 mt-2" />
+          </div>
+        );
       default:
         return null;
     }

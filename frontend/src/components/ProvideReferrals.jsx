@@ -54,8 +54,7 @@ export default function ProvideReferrals() {
     }
   };
 
-  if (loading) return <LoadingPlaceholder />;
-
+  // Always show header; only grid area is replaced by skeleton
   if (!isEmployee) {
     return (
       <div className="">
@@ -71,7 +70,11 @@ export default function ProvideReferrals() {
     <div className="">
       <h2 className="text-2xl font-semibold mb-10 text-gray-900">Provide Referrals</h2>
       {error && <div className="mb-4 p-3 rounded bg-red-50 text-red-700 font-medium">{error}</div>}
-      {referrals.length === 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <LoadingPlaceholder type="referral-card" count={4} />
+        </div>
+      ) : referrals.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[200px]">
           <span className="text-gray-500 text-lg font-medium" style={{marginTop: '2rem'}}>No referrals found.</span>
         </div>
