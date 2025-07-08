@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { API_URL } from '../config/api';
 import LoadingPlaceholder from './LoadingPlaceholder';
 
 export default function CreateReferrals() {
+  const { currentUser, getBackendUser } = useAuth();
+  const backendUser = getBackendUser();
   const [formData, setFormData] = useState({
     jobTitle: '',
     jobId: '',
@@ -17,7 +19,18 @@ export default function CreateReferrals() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
-  const { currentUser } = useAuth();
+
+  // Prefill LinkedIn, GitHub, Resume from backendUser
+  useEffect(() => {
+    if (backendUser) {
+      setFormData((prev) => ({
+        ...prev,
+        linkedinUrl: backendUser.linkedinLink || '',
+        githubUrl: backendUser.githubLink || '',
+        resumeLink: backendUser.resumeLink || '',
+      }));
+    }
+  }, [backendUser]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,7 +49,7 @@ export default function CreateReferrals() {
         },
       });
       setSuccess(true);
-      setFormData({ jobTitle: '', jobId: '', jobLink: '', companyName: '', linkedinUrl: '', githubUrl: '', resumeLink: '' });
+      setFormData({ jobTitle: '', jobId: '', jobLink: '', companyName: '', linkedinUrl: backendUser?.linkedinLink || '', githubUrl: backendUser?.githubLink || '', resumeLink: backendUser?.resumeLink || '' });
     } catch (err) {
       setError(
         err.response?.data?.message || 'Failed to create referral. Please check your input and try again.'
@@ -76,7 +89,7 @@ export default function CreateReferrals() {
             className="input"
             value={formData.jobId}
             onChange={handleChange}
-            placeholder="Enter job ID (optional)"
+            placeholder="Enter job ID"
           />
         </div>
         <div>
@@ -88,7 +101,7 @@ export default function CreateReferrals() {
             className="input"
             value={formData.jobLink}
             onChange={handleChange}
-            placeholder="Enter job link (optional)"
+            placeholder="Enter job link"
           />
         </div>
         <div>
@@ -113,7 +126,7 @@ export default function CreateReferrals() {
             className="input"
             value={formData.linkedinUrl}
             onChange={handleChange}
-            placeholder="Enter LinkedIn URL (optional)"
+            placeholder="Enter your LinkedIn URL"
           />
         </div>
         <div>
@@ -125,7 +138,7 @@ export default function CreateReferrals() {
             className="input"
             value={formData.githubUrl}
             onChange={handleChange}
-            placeholder="Enter GitHub URL (optional)"
+            placeholder="Enter your GitHub URL"
           />
         </div>
         <div>
@@ -137,7 +150,7 @@ export default function CreateReferrals() {
             className="input"
             value={formData.resumeLink}
             onChange={handleChange}
-            placeholder="Enter resume link (optional)"
+            placeholder="Enter your Resume link"
           />
         </div>
         <div className="h-4" />
