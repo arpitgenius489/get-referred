@@ -14,6 +14,8 @@ export default function ViewReferrals() {
   const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [error, setError] = useState(null);
+  const [showError, setShowError] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,6 +32,7 @@ export default function ViewReferrals() {
         });
         setReferrals(response.data.data || []);
       } catch (error) {
+        setError('Failed to fetch referrals.');
         setReferrals([]);
       } finally {
         setLoading(false);
@@ -53,6 +56,12 @@ export default function ViewReferrals() {
           {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
         </select>
       </div>
+      {error && showError && (
+        <div className="mb-4 p-3 rounded bg-red-50 text-red-700 font-medium flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => setShowError(false)} className="ml-2 text-lg font-bold leading-none rounded-full hover:bg-red-100 p-1 focus:outline-none" aria-label="Close notification">×</button>
+        </div>
+      )}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <LoadingPlaceholder type="referral-card" count={4} />

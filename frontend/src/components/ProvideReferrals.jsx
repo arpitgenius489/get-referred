@@ -10,6 +10,7 @@ export default function ProvideReferrals() {
   const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showError, setShowError] = useState(true);
 
   const isEmployee = backendUser?.isEmployee || backendUser?.role === 'EMPLOYEE';
 
@@ -69,7 +70,12 @@ export default function ProvideReferrals() {
   return (
     <div className="">
       <h2 className="text-2xl font-semibold mb-10 text-gray-900">Provide Referrals</h2>
-      {error && <div className="mb-4 p-3 rounded bg-red-50 text-red-700 font-medium">{error}</div>}
+      {error && showError && (
+        <div className="mb-4 p-3 rounded bg-red-50 text-red-700 font-medium flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => setShowError(false)} className="ml-2 text-lg font-bold leading-none rounded-full hover:bg-red-100 p-1 focus:outline-none" aria-label="Close notification">×</button>
+        </div>
+      )}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <LoadingPlaceholder type="referral-card" count={4} />
