@@ -35,8 +35,8 @@ public class ReferralRequestController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('JOB_SEEKER')")
-    public ResponseEntity<ApiResponse<ReferralRequestDTO>> createReferralRequest(@Valid @RequestBody ReferralRequestDTO requestDto) {
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<ReferralRequestDTO>> createReferralRequest(@Valid @RequestBody ReferralRequestDTO requestDto, @RequestHeader("Authorization") String authHeader) {
         if (requestDto.getJobTitle() == null || requestDto.getJobTitle().isBlank()) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Job title is required", null));
         }
@@ -48,7 +48,13 @@ public class ReferralRequestController {
         request.setGithubUrl(requestDto.getGithubLink());
         request.setResumeLink(requestDto.getResumeLink());
         request.setLinkedinUrl(requestDto.getLinkedinLink());
-        // Set jobSeeker and other required fields as per your logic
+        // Set jobSeeker from the authenticated user
+        String firebaseUid = userService.extractFirebaseUidFromAuthHeader(authHeader);
+        User jobSeeker = userService.findByFirebaseUid(firebaseUid).orElse(null);
+        if (jobSeeker == null) {
+            return ResponseEntity.status(401).body(new ApiResponse<>(false, "User not found", null));
+        }
+        request.setJobSeeker(jobSeeker);
         ReferralRequest created = referralRequestService.createReferralRequest(request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Referral request created successfully", ReferralRequestDTO.fromEntity(created)));
     }
@@ -62,7 +68,7 @@ public class ReferralRequestController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('JOB_SEEKER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getMyReferralRequests(@RequestHeader("Authorization") String authHeader) {
         String firebaseUid = userService.extractFirebaseUidFromAuthHeader(authHeader);
         List<ReferralRequestDTO> dtos = referralRequestService.toDTOList(referralRequestService.getReferralRequestsByJobSeekerFirebaseUid(firebaseUid));
@@ -98,7 +104,7 @@ public class ReferralRequestController {
     }
 
     @PutMapping("/{id}/rating")
-    @PreAuthorize("hasRole('JOB_SEEKER') and @referralRequestService.isJobSeeker(#id, authentication.principal.id)")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ReferralRequestDTO>> addRating(
             @PathVariable Long id,
             @RequestBody int rating) {
@@ -118,7 +124,7 @@ public class ReferralRequestController {
     }
 
     @GetMapping("/hired")
-    @PreAuthorize("@userService.hasEmployeeAccess(authentication.principal.id) or hasRole('JOB_SEEKER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<ReferralRequestDTO>>> getHiredReferralRequests(@RequestHeader("Authorization") String authHeader) {
         String firebaseUid = userService.extractFirebaseUidFromAuthHeader(authHeader);
         List<ReferralRequestDTO> dtos = referralRequestService.filterReferralRequestsByStatusAndUser(firebaseUid, "HIRED");

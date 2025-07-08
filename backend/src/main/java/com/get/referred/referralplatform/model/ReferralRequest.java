@@ -28,8 +28,7 @@ public class ReferralRequest {
     private User jobSeeker;
 
     @ManyToOne
-    @JoinColumn(name = "employee_id", nullable = false)
-    @NotNull
+    @JoinColumn(name = "employee_id", nullable = true)
     private User employee;
 
     @NotBlank
