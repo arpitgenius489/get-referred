@@ -98,8 +98,7 @@ export default function MyProfile() {
       if (changedFields.includes('githubLink')) changedFieldsObj.githubLink = githubLink;
       if (changedFields.includes('linkedinLink')) changedFieldsObj.linkedinLink = linkedinLink;
       if (changedFields.includes('resumeLink')) changedFieldsObj.resumeLink = resumeLink;
-      if (isEmployee && changedFields.includes('companyName')) changedFieldsObj.companyName = companyName;
-      if (!isEmployee && initialProfile.isEmployee) changedFieldsObj.companyName = '';
+      if (changedFields.includes('companyName')) changedFieldsObj.companyName = companyName;
       console.log('Sending to backend:', changedFieldsObj); // Debug log
       if (Object.keys(changedFieldsObj).length === 0) {
         showToast('No changes to update.', 'info');
