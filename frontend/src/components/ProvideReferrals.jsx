@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { API_URL } from '../config/api';
 import LoadingPlaceholder from './LoadingPlaceholder';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 export default function ProvideReferrals() {
   const { getBackendUser, currentUser } = useAuth();
@@ -12,16 +13,9 @@ export default function ProvideReferrals() {
   const [error, setError] = useState('');
   const [showError, setShowError] = useState(true);
 
-  const isEmployee = backendUser?.isEmployee || backendUser?.role === 'EMPLOYEE';
-
   const fetchReferrals = async () => {
     setLoading(true);
     setError('');
-    if (!isEmployee) {
-      setReferrals([]);
-      setLoading(false);
-      return;
-    }
     try {
       const response = await axios.get(`${API_URL}/api/referrals/received`, {
         headers: {
@@ -39,7 +33,7 @@ export default function ProvideReferrals() {
   useEffect(() => {
     fetchReferrals();
     // eslint-disable-next-line
-  }, [currentUser, isEmployee]);
+  }, [currentUser]);
 
   const handleStatusUpdate = async (id, newStatus) => {
     try {
@@ -55,23 +49,20 @@ export default function ProvideReferrals() {
     }
   };
 
-  // Always show header; only grid area is replaced by skeleton
-  if (!isEmployee) {
-    return (
-      <div className="">
-        <h2 className="text-2xl font-semibold mb-10 text-gray-900">Provide Referrals</h2>
-        <div className="flex items-center justify-center min-h-[200px] w-full">
-          <span className="text-gray-500 text-lg font-medium text-center">
-            You can provide referrals only if you are an employee.
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="">
-      <h2 className="text-2xl font-semibold mb-10 text-gray-900">Provide Referrals</h2>
+      <div className="flex items-center mb-10 gap-2">
+        <h2 className="text-2xl font-semibold text-gray-900">Provide Referrals</h2>
+        <button
+          type="button"
+          onClick={fetchReferrals}
+          className="ml-2 p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-300"
+          aria-label="Refresh Referrals"
+          title="Refresh Referrals"
+        >
+          <ArrowPathIcon className="w-5 h-5 text-gray-500 hover:text-primary-600 transition-colors" />
+        </button>
+      </div>
       {error && showError && (
         <div className="mb-4 p-3 rounded bg-red-50 text-red-700 font-medium flex items-center justify-between">
           <span>{error}</span>
