@@ -228,38 +228,23 @@ export default function MyProfile() {
             />
           )}
         </div>
-        <div className="flex items-center gap-2">
-          {loading && loadingFields.includes('isEmployee') ? (
-            <div className="h-5 w-5 bg-gray-200 rounded animate-pulse" />
+        {/* Always show Company Name input */}
+        <div>
+          <label htmlFor="companyName" className="form-label">Company Name</label>
+          {loading && loadingFields.includes('companyName') ? (
+            <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
           ) : (
             <input
-              type="checkbox"
-              id="isEmployee"
-              checked={isEmployee}
-              onChange={(e) => handleFieldChange('isEmployee', e.target.checked, setIsEmployee)}
+              type="text"
+              id="companyName"
+              className="input"
+              value={companyName || ''}
+              onChange={(e) => handleFieldChange('companyName', e.target.value, setCompanyName)}
+              placeholder="Enter your company name (if you are an employee)"
               disabled={!editMode}
             />
           )}
-          <label htmlFor="isEmployee" className="form-label mb-0">I am an employee</label>
         </div>
-        {isEmployee && (
-          <div>
-            <label htmlFor="companyName" className="form-label">Company Name</label>
-            {loading && loadingFields.includes('companyName') ? (
-              <div className="h-10 bg-gray-200 rounded animate-pulse w-full" />
-            ) : (
-              <input
-                type="text"
-                id="companyName"
-                className="input"
-                value={companyName || ''}
-                onChange={(e) => handleFieldChange('companyName', e.target.value, setCompanyName)}
-                placeholder="Enter your company name"
-                disabled={!editMode}
-              />
-            )}
-          </div>
-        )}
         <div className="h-4" />
         <div className="mt-8 flex justify-between gap-3">
           {/* Left: Edit Profile or Save */}
