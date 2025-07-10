@@ -45,16 +45,21 @@ export default function ViewReferrals() {
   return (
     <div className="">
       <h2 className="text-2xl font-semibold mb-10 text-gray-900">View Referrals</h2>
-      <div className="mb-6 flex gap-2 items-center">
-        <label htmlFor="statusFilter" className="font-medium text-gray-700">Filter by status:</label>
-        <select
-          id="statusFilter"
-          value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-        </select>
+      <div className="mb-6 w-full max-w-xs">
+        <label htmlFor="statusFilter" className="block text-sm font-medium text-gray-700 mb-1">Filter by status</label>
+        <div className="relative">
+          <select
+            id="statusFilter"
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            className="input pr-10 bg-white text-gray-700 cursor-pointer appearance-none"
+          >
+            {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+          </select>
+          <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+          </span>
+        </div>
       </div>
       {error && showError && (
         <div className="mb-4 p-3 rounded bg-red-50 text-red-700 font-medium flex items-center justify-between">
