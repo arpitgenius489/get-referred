@@ -62,7 +62,7 @@ export default function ProvideReferrals() {
         <h2 className="text-2xl font-semibold mb-10 text-gray-900">Provide Referrals</h2>
         <div className="flex items-center justify-center min-h-[200px] w-full">
           <span className="text-gray-500 text-lg font-medium text-center">
-            You can provide referrals only if you are an employee. To enable this, go to your profile, toggle "I'm an employee", and enter your company name.
+            You can provide referrals only if you are an employee.
           </span>
         </div>
       </div>

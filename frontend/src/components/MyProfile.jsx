@@ -14,7 +14,6 @@ export default function MyProfile() {
   const [githubLink, setGithubLink] = useState('');
   const [linkedinLink, setLinkedinLink] = useState('');
   const [resumeLink, setResumeLink] = useState('');
-  const [isEmployee, setIsEmployee] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(false); // Only true during update
@@ -43,7 +42,6 @@ export default function MyProfile() {
     setGithubLink(user.githubLink || '');
     setLinkedinLink(user.linkedinLink || '');
     setResumeLink(user.resumeLink || '');
-    setIsEmployee(!!user.isEmployee);
     setCompanyName(user.companyName || '');
     setUserId(user.id);
     setInitialProfile({
@@ -52,7 +50,6 @@ export default function MyProfile() {
       githubLink: user.githubLink || '',
       linkedinLink: user.linkedinLink || '',
       resumeLink: user.resumeLink || '',
-      isEmployee: !!user.isEmployee,
       companyName: user.companyName || '',
     });
     setEditMode(false); // Reset edit mode on profile refresh
@@ -75,7 +72,6 @@ export default function MyProfile() {
     if (field === 'githubLink' && value !== initialProfile.githubLink) changed = true;
     if (field === 'linkedinLink' && value !== initialProfile.linkedinLink) changed = true;
     if (field === 'resumeLink' && value !== initialProfile.resumeLink) changed = true;
-    if (field === 'isEmployee' && value !== initialProfile.isEmployee) changed = true;
     if (field === 'companyName' && value !== initialProfile.companyName) changed = true;
     setChangedFields((prev) => {
       if (changed && !prev.includes(field)) return [...prev, field];
