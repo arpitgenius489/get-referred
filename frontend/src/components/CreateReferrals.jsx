@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { API_URL } from '../config/api';
 import LoadingPlaceholder from './LoadingPlaceholder';
+import { Toast } from './Toast';
 
 export default function CreateReferrals() {
   const { currentUser, getBackendUser } = useAuth();
@@ -19,6 +20,7 @@ export default function CreateReferrals() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   // Prefill LinkedIn, GitHub, Resume from backendUser
   useEffect(() => {
@@ -50,10 +52,12 @@ export default function CreateReferrals() {
       });
       setSuccess(true);
       setFormData({ jobTitle: '', jobId: '', jobLink: '', companyName: '', linkedinUrl: backendUser?.linkedinLink || '', githubUrl: backendUser?.githubLink || '', resumeLink: backendUser?.resumeLink || '' });
+      setToast({ show: true, message: 'Referral created successfully!', type: 'success' });
     } catch (err) {
       setError(
         err.response?.data?.message || 'Failed to create referral. Please check your input and try again.'
       );
+      setToast({ show: true, message: err.response?.data?.message || 'Failed to create referral. Please check your input and try again.', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -63,12 +67,12 @@ export default function CreateReferrals() {
     return <LoadingPlaceholder />;
   }
 
-  if (loading) return <LoadingPlaceholder />;
-
   return (
     <div className="">
+      {toast.show && (
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast({ show: false, message: '', type: toast.type })} />
+      )}
       <h2 className="text-2xl font-semibold mb-10 text-gray-900">Create Referral</h2>
-      {success && <div className="mb-4 p-3 rounded bg-green-50 text-green-700 font-medium">Referral created successfully!</div>}
       {error && <div className="mb-4 p-3 rounded bg-red-50 text-red-700 font-medium">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -162,8 +166,9 @@ export default function CreateReferrals() {
           <button
             type="submit"
             className="btn btn-primary min-w-fit px-4 font-normal"
+            disabled={loading}
           >
-            Create Referral
+            {loading ? 'Creating Referral...' : 'Create Referral'}
           </button>
         </div>
       </form>
