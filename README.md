@@ -188,5 +188,5 @@ Contributions, issues, and feature requests are welcome! Please open an issue or
 
 ## 👨‍💻 About the Developer
 
-Built by Arpit Yadav. Connect on [GitHub](https://github.com/yourusername) | [LinkedIn](https://linkedin.com/in/yourprofile)
+Built by Arpit Yadav. Connect on [GitHub](https://github.com/arpitgenius489) | [LinkedIn](https://www.linkedin.com/in/arpit-y)
 
