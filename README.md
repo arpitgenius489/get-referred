@@ -171,12 +171,6 @@ Contributions, issues, and feature requests are welcome! Please open an issue or
 
 <br>
 
-## 📄 License
-
-This project is licensed under the MIT License.
-
-<br>
-
 ## 👨‍💻 About the Developer
 
 Built by Arpit Yadav. Connect on [GitHub](https://github.com/yourusername) | [LinkedIn](https://linkedin.com/in/yourprofile)
