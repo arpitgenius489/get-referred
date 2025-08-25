@@ -12,9 +12,8 @@ This project demonstrates strong backend engineering skills in Java and Spring B
 
 ## 📌 Live Demo
 
-- 🔗 **Frontend (Live)**: _Add frontend deployment link here_  
-- 🔗 **Backend (API base URL)**: _Add backend deployment link here_  
-- 📱 **QR Code**: Scan from resume (or insert image/link here)
+- 🔗 **Frontend (Live)**: https://getreferred.onrender.com/
+- 🔗 **Backend (API base URL)**: https://get-referred-backend.onrender.com
 
 <br>
 
