@@ -83,9 +83,9 @@ This project demonstrates strong backend engineering skills in Java and Spring B
 |-------------|------------|
 | **Frontend**  | React, Tailwind CSS, Vite |
 | **Backend**   | Java, Spring Boot, REST APIs |
-| **Database**  | MySQL (Hosted on Railway) |
+| **Database**  | MySQL (Hosted on Aiven) |
 | **Authentication** | Firebase (Google + Email/Password) |
-| **Deployment** | Vercel (frontend), Render/Railway (backend) |
+| **Deployment** | Vercel (frontend + backend) |
 
 <br>
 
@@ -105,6 +105,8 @@ This project demonstrates strong backend engineering skills in Java and Spring B
 <br> <br>
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/67487755-27e1-4212-93a2-5ae74d718b66" />
 <br> <br>
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f8f52a96-35e0-4772-81f4-2b49ad4ba2f8" />
+
 
 
 
