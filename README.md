@@ -91,7 +91,10 @@ This project demonstrates strong backend engineering skills in Java and Spring B
 
 ## 📷 Screenshots
 
-_Screenshots will be added here to showcase the Landing Page, Authentication Flow, Dashboard, and more._
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/e42311d7-6583-4e05-a33a-7656d995df8e" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7c597deb-5e24-4fa4-9daf-36008826e969" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2c9045e6-64cf-444f-bc61-8595a0e0c68f" />
+
 
 <br>
 
