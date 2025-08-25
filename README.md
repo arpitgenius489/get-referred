@@ -180,5 +180,5 @@ This project is licensed under the MIT License.
 
 ## 👨‍💻 About the Developer
 
-Built by [Your Name]. Connect on [GitHub](https://github.com/yourusername) | [LinkedIn](https://linkedin.com/in/yourprofile)
+Built by Arpit Yadav. Connect on [GitHub](https://github.com/yourusername) | [LinkedIn](https://linkedin.com/in/yourprofile)
 
