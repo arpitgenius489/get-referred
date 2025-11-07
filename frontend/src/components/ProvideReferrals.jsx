@@ -84,7 +84,7 @@ export default function ProvideReferrals() {
           {referrals.map(referral => (
             <div key={referral.id} className="bg-white rounded-lg shadow p-6 flex flex-col gap-2">
               <div className="flex justify-between items-center mb-2">
-                <span className="font-semibold text-lg text-primary-700">{referral.jobId}</span>
+                <span className="font-semibold text-lg text-primary-700">{referral.jobTitle}</span>
                 <span className="text-sm text-gray-500 font-semibold uppercase">{referral.status}</span>
               </div>
               <div className="text-gray-700 mb-1">Company: <span className="font-medium">{referral.companyName}</span></div>
