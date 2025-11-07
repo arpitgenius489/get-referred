@@ -87,7 +87,7 @@ export default function ProvideReferrals() {
                 <span className="font-semibold text-lg text-primary-700">{referral.jobTitle}</span>
                 <span className="text-sm text-gray-500 font-semibold uppercase">{referral.status}</span>
               </div>
-              <div className="text-gray-700 mb-1">Company: <span className="font-medium">{referral.companyName}</span></div>
+              <div className="text-gray-700 mb-1">Current Company: <span className="font-medium">{referral.jobSeeker?.company}</span></div>
               <div className="text-gray-700 mb-1">Job Seeker: <span className="font-medium">{referral.jobSeekerName}</span></div>
               <div className="flex gap-2 mt-2">
                 <button
