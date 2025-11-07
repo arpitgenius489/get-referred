@@ -23,6 +23,9 @@ public class ReferralRequestDTO {
     private String githubLink;
     private String resumeLink;
     private String linkedinLink;
+    private String jobSeekerCompany;
+    public String getJobSeekerCompany() { return jobSeekerCompany; }
+    public void setJobSeekerCompany(String jobSeekerCompany) { this.jobSeekerCompany = jobSeekerCompany; }
 
     public ReferralRequestDTO() {}
 
@@ -202,6 +205,7 @@ public class ReferralRequestDTO {
             dto.setJobSeekerName(request.getJobSeeker().getName());
             dto.setJobSeekerEmail(request.getJobSeeker().getEmail());
             dto.setJobSeekerLinkedin(request.getJobSeeker().getLinkedinLink());
+            dto.setJobSeekerCompany(request.getJobSeeker().getCompanyName());
         }
         if (request.getEmployee() != null) {
             dto.setEmployeeName(request.getEmployee().getName());
