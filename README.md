@@ -1,7 +1,7 @@
 # 💼 Get Referred – Job Referral Platform
 
-[![Backend: Java + Spring](https://img.shields.io/badge/Backend-Java%20%2B%20Spring-informational)]()
-[![Frontend: React + Tailwind](https://img.shields.io/badge/Frontend-React%20%2B%20Tailwind-blue)]()
+[![Backend: Java + Spring Boot](https://img.shields.io/badge/Backend-Java%20%2B%20Spring%20Boot-informational)]()
+[![Frontend: HTML5 + CSS3 + JavaScript + React + Tailwind CSS](https://img.shields.io/badge/Frontend-HTML5%20%2B%20CSS3%20%2B%20JavaScript%20%2B%20React%20%2B%20Tailwind%20CSS-blue)]()
 [![Database: MySQL](https://img.shields.io/badge/Database-MySQL-brightgreen)]()
 
 A full-stack job referral platform where users can request referrals from employees, manage their own referrals, and build professional connections — all with secure authentication, profile control, and a clean UI.
@@ -83,9 +83,9 @@ This project demonstrates strong backend engineering skills in Java and Spring B
 |-------------|------------|
 | **Frontend**  | React, Tailwind CSS, Vite |
 | **Backend**   | Java, Spring Boot, REST APIs |
-| **Database**  | MySQL (Hosted on Railway) |
+| **Database**  | MySQL (Hosted on Aiven) |
 | **Authentication** | Firebase (Google + Email/Password) |
-| **Deployment** | Vercel (frontend), Render/Railway (backend) |
+| **Deployment** | Vercel (frontend + backend) |
 
 <br>
 
@@ -105,6 +105,8 @@ This project demonstrates strong backend engineering skills in Java and Spring B
 <br> <br>
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/67487755-27e1-4212-93a2-5ae74d718b66" />
 <br> <br>
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f8f52a96-35e0-4772-81f4-2b49ad4ba2f8" />
+
 
 
 
@@ -188,5 +190,5 @@ Contributions, issues, and feature requests are welcome! Please open an issue or
 
 ## 👨‍💻 About the Developer
 
-Built by Arpit Yadav. Connect on [GitHub](https://github.com/yourusername) | [LinkedIn](https://linkedin.com/in/yourprofile)
+Built by Arpit Yadav. Connect on [GitHub](https://github.com/arpitgenius489) | [LinkedIn](https://www.linkedin.com/in/arpit-y)
 
